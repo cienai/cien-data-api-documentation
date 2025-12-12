@@ -3,6 +3,7 @@
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
  */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
 
 /* You can override the default Infima variables here. */
 :root {
@@ -118,7 +119,6 @@ html:not([data-theme='dark']) .footer .footer__link-item {
 }
 
 /* Hero background text: "Measure What Matters" behind content */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
 .hero {
   position: relative;
 }
