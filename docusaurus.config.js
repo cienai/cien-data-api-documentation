@@ -21,13 +21,16 @@ const config = {
         href: '/', // homepage
       },
       items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'docs',
-          position: 'left',
-          label: 'Docs',
-        },
+        { type: 'doc', docId: 'intro', position: 'left', label: 'Get started' },
+        { type: 'doc', docId: 'examples', position: 'left', label: 'Examples' },
+        { type: 'doc', docId: 'rules', position: 'left', label: 'Rules' },
+        { type: 'doc', docId: 'naming-conventions', position: 'left', label: 'Naming' },
+        { type: 'docSidebar', sidebarId: 'docs', position: 'left', label: 'Entities' },
       ],
+    },
+    footer: {
+      style: 'dark',
+      copyright: 'Copyright © 2026 - Cien, Inc. - All Rights Reserved.',
     },
   },
 

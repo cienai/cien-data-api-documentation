@@ -14,8 +14,8 @@ module.exports = {
   docs: [
     'intro',
     'examples',
-    'api-reference',
     'rules',
+    'naming-conventions',
     {
       type: 'category',
       label: 'Entities',

@@ -7,9 +7,9 @@ export default function Home() {
     <Layout title="Cien API">
       <main style={{ padding: '4rem 2rem', textAlign: 'center' }}>
         <img
-          src="/cien-api-documentation/img/api-hero.png"
+          src="/img/api.png"
           alt="Cien API"
-          style={{ maxWidth: 220 }}
+          style={{ maxWidth: 640, width: '100%', height: 'auto', marginBottom: '1.5rem' }}
         />
 
         <h1>Cien API</h1>
@@ -27,8 +27,8 @@ export default function Home() {
             Examples
           </Link>
 
-          <Link className="button button--secondary margin--sm" to="/docs/api-reference">
-            API Reference
+          <Link className="button button--secondary margin--sm" to="/docs/rules">
+            Rules
           </Link>
         </div>
       </main>
