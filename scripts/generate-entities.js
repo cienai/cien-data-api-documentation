@@ -76,9 +76,14 @@ This entity represents **${entity}** records in the Cien platform.
       // Do NOT include a trailing newline at the end of the header separator row,
       // otherwise we end up with a blank line before the first table row which
       // breaks Markdown table rendering in some engines (e.g., Docusaurus).
+      // Header label overrides: preserve exact label for some headers
+      const HEADER_LABEL_OVERRIDES = {
+        power_bi: 'power_bi',
+      };
+
       const tableHeader =
         `## Fields\n\n` +
-        `| ${headers.map(h => humanize(h)).join(' | ')} |\n` +
+        `| ${headers.map(h => HEADER_LABEL_OVERRIDES[h] ?? humanize(h)).join(' | ')} |\n` +
         `| ${headers.map(() => '---').join(' | ')} |`;
 
       const tableRows = rows
