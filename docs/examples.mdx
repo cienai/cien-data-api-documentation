@@ -4,18 +4,1075 @@ title: Examples & Queries
 
 
 
-## Query basics
+CIEN’S API
+Overview
+What is the Cien.ai API?
+The Cien API allows developers to access the underlying data from Cien’s TrueAI platform, built to enable sales and marketing
+technology applications and analytics in
+completely new ways.
+The TrueAI Platform
+Cien’s TrueAI platform enhances CRM data and
+provides transparency on the underpinnings and
+accuracy of its calculations. The API is able to
+provide insights regardless of your company’s
+CRM data quality. Duplicate data is fl agged.
+Natural Language Processing (NLP) models deal with inconsistent data. Incomplete data is enhanced from internal and external
+sources. We measure the accuracy of a customer’s CRM data and provide enhancements and annotations for superior analytics.
+API Speci fi cation
+Upon proper initialization of the API you will get cloud access to the data in the form
+of a zip fi le containing csv fi les with the below entities. These fi les can then be manlluy
+or automatically imported as per your requirements; into data warehouses, and/or to
+BI tools for integration into your analytic reports. Scripts for SQL Server, PostgresSQL,
+Snow fl ake & Spark are included.
+Upon request, there is a reference implementation on how Cien’s API can be used in
+the form of Cien’s TrueAI GTM Suite created in Power BI for . This can help you get
+started with your advanced GTM analytics project.
+Support
+If you have any questions, please reach out to our technical developer support:
+api@cien.ai.
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 2
 
-Place example queries here covering filtering, sorting, and pagination.
 
-## Joining entities
+API EXAMPLES
+To get you started and familiarize yourself with the Cien API, and the power of the TrueAI platform, we have created the
+following API examples written in PostgresSQL. These examples cover di ff erent aspects of the platform such as data cleaning
+(ADE), rep performance (CI) and deal analysis (DI). By running through the examples on your dataset you will both get a quick
+understanding of the company’s GTM performance and also familiarize yourself with how to use the very powerful derived
+ssr_history and users_history entities. Almost all common GTM questions can be answered with those. And in many cases
+you can simply change a grouping or condition to answer the speci fi c question you fi nd most pressing right now.
+As always, we are eager for your feedback. If you have suggestions for other examples or need help changing a question, feel
+free to contact our API support team: api@cien.ai.
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 3
 
-Show how to join common entities (e.g., accounts ↔ opps) with recommended keys.
 
-## Power BI usage
+^ Top
+Automatic Data Enhancement (ADE)
+Transparency on the Data Cleanup Process
+Before you start using the new derived entities it makes sense to understand the quality of the underlying data, and how it has
+been enhanced by the TrueAI platform. The following examples illustrate some of the ways in how this can be done.
+ADE #1: Lead Duplication
+ADE #2: Lead & Account Completeness
+ADE #3: Consistency & Con fi dence of Lead Source Consolidation
+ADE #4: Sales Process Steps in a Year Summary
+ADE #5: CRM Activity Compliance by Group & Role
+ADE #6: AI Prediction Quality
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 4
 
-Add examples of building visuals, referencing the `power_bi` column guidance, and any measures.
 
-## Advanced filters
+^ Top
+ADE #1: Lead Duplication (V.1.2)
+Purpose of Analysis
+Duplicate leads cause multiple challenges; for example, reps are not sure if they have properly followed up on an account,
+and analysis of lead conversion gets very complicated.
+Common Challenges and How to Accomplish with the Cien API
+To determine duplicate leads, just looking for the exact same information in multiple records will not usually fi nd many
+dupes. Some duplicate records may have di ff erent email addresses, and/or alternate spellings of names (Mike vs. Michael
+etc.). The TrueAI platform uses a “fuzzy” match that generates a duplicate con fi dence, and only marks the records that are
+above that con fi dence threshold as duplicates.
+Multiple leads and accounts can often make prospecting analysis hard. To solve this problem, the TrueAI platform has
+created a derived entity called hat_leads (The name comes from the fact that a “logical lead” can wear di ff erent “hats”; as
+an account, one lead or multiple leads). If you want to analyze lead-related data, we recommend that you use that entity. In
+this case we are using the lead entity to illustrate the issue in your database.
+-------------------
+Example SQL
+SELECT
+u.trueai_group, u.trueai_user_role_dept, -- group fields
+Count(*) as lead_count, -- total leads
+Count(trueai_lead_dupe_id) as dupe_records, -- total duplicated records
+Count(DISTINCT trueai_lead_dupe_id) as unique_dupe_records, -- total duplicated records
+Count(trueai_lead_dupe_id) / CAST(Count(*) as float) as dupe_ratio,
+Count(CASE WHEN trueai_is_master = 'true' THEN trueai_is_master END ) as master_records, -- the master
+record
+Count(trueai_company_dupe_id) as company_dupe_records, -- also check how many leads belong to the same
+company
+Count(trueai_company_dupe_id) / CAST(Count(*) as float) as company_dupe_ratio -- calculate that ratio
+FROM leads AS l -- use leads
+LEFT JOIN users AS u -- left join to users to get user info
+ON l.trueai_creator_id = u._sys_doc_id -- use creator id to determine who created the dupe record
+GROUP BY u.trueai_group, trueai_user_role_dept -- group fields (group & dept)
+ORDER BY dupe_records DESC; -- sort by the most dupes
+-------------------
+Sample Result
+In this case there is not a lot of duplication of actual leads, but many leads belong to the same company, and would be
+consolidated in the hat_leads entity.
+trueai_group trueai_user_role_level lead_count dupe_records unique_dupe_records dupe_ratio master_records company_dupe_records company_dupe_ratio
+ND MKT 35,657 12 9 0.03% 35648 3306 9%
+ND ND 17 0 0 0.00% 17 3 18%
+Enterprise SALES 7 0 0 0.00% 7 2 29%
+SMB SALES 14 0 0 0.00% 14 4 29%
+ND SALES 736 0 0 0.00% 736 93 13%
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 5
 
-Document date ranges, wildcard patterns, and case sensitivity.
+
+ADE #2: Lead & Account Completeness
+Purpose of Analysis
+Incomplete data is one of the most common data quality problems, which causes issues both for reps who need to spend
+time looking for contact info, and for any analysis that relies on complete data such as lead source or location.
+Common Challenges and How to Accomplish with the Cien API
+You cannot address incomplete data without knowing what’s missing. TheTrueAI platform makes this easy since the base
+CRM entities ( leads , accounts , contacts & opps ) has a crm_completeness fi eld for each record, scoring the record
+between 0 (no meaningful data) to 1 (all needed data is populated). The score is broken down into subcomponents (contact,
+geo, location & marketing) to see exactly where problems are located. The platform then uses internal and external lookups
+to populate the corresponding TrueAI fi eld, and calculates the improved score.
+-------------------
+Example SQL
+SELECT
+AE.entity, -- get the entity since it is a union
+u.trueai_user_role_dept as creator_dept, -- which dept created the record
+Count(*) as record_count, -- count
+AVG(AE.crm_complt) AS avg_crm_complt_score, -- the overall score of the raw CRM data
+AVG(AE.crm_complt_contact) AS avg_crm_complt_score_contact, -- the contact info only score
+AVG(AE.crm_complt_contact_method) AS avg_crm_complt_score_contact_method, -- how much of email, phone
+etc, is populated
+AVG(AE.crm_complt_geo) AS avg_crm_complt_score_geo, -- the location info score
+AVG(AE.crm_complt_marketing) AS avg_crm_completness_score_marketing, -- the marketing info like lead
+source, industry etc
+AVG(AE.trueai_complt) AS avg_trueai_completeness_score -- the enhanced completeness score
+FROM
+-- create union of multiple tables (could also add opps & contacts)
+(SELECT 'leads' as entity, crm_createdon, trueai_creator_id, crm_complt, crm_complt_contact,
+crm_complt_contact_method, crm_complt_geo,crm_complt_marketing,trueai_complt FROM leads AS L
+UNION
+SELECT 'accounts' as entity, crm_createdon, trueai_creator_id, crm_complt, crm_complt_contact,
+crm_complt_contact_method, crm_complt_geo,crm_complt_marketing,trueai_complt FROM accounts AS A
+)
+as AE
+INNER JOIN users AS u -- link in users
+ON AE.trueai_creator_id = U._sys_doc_id -- look up the doc id (when available, use the trueai vs. the CRM
+field)
+WHERE AE.crm_createdon > U._sys_asof -90 -- get in the last 90 days since last data refresh
+GROUP BY AE.entity, U.trueai_user_role_dept -- group by entity and dept
+ORDER BY 1,2; -- sort entities together
+-------------------
+Sample Result
+In this case the avg. completeness scores are reasonable, with the biggest issue being that a lot of accounts records added
+by the OPS team are missing emails and phone numbers.
+entity creator_d
+ept
+record_
+count
+avg_crm_complet
+eness_score
+avg_crm_completene
+ss_score_contact
+avg_crm_completeness_
+score_contact_method
+avg_crm_complet
+eness_score_geo
+avg_crm_completness
+_score_marketing
+avg_trueai_compl
+eteness_score
+accounts MKT 3,384 0.57 1.00 0.74 0.51 0.58 0.63
+accounts ND 53 0.50 1.00 0.43 0.82 0.55 0.56
+accounts OPS 1,124 0.34 1.00 0.06 0.97 0.66 0.34
+accounts OTHER 10 0.73 1.00 0.75 0.90 0.63 0.77
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 6
+
+
+accounts SALES 537 0.49 1.00 0.44 0.76 0.53 0.54
+leads MKT 1,096 0.38 0.93 0.60 0.25 0.48 0.41
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 7
+
+
+ADE #3: Consistency & Con fi dence of Lead Source Consolidation (V.1.2)
+Purpose of Analysis
+As data is added over multiple years, de fi nitions that originally were consistent and clear tend to become more inconsistent.
+This makes any analysis very di ffi cult, since it’s relying on clean categories.
+Common Challenges and How to Accomplish with the Cien API
+The traditional way to get data that can be analyzed is to manually clean it up, through search and replace processes. Those
+processes are time-consuming and error prone, and have to be repeated for each new analysis, since new data is
+continuously added.
+Across multiple entities, there are fi elds such as crm_industry , crm_leadsource & crm_title etc, that the platform
+consolidates and standardizes. It uses pre-trained models which have been created to be as broadly applicable as possible.
+Typically, these models are very good at taking hundreds of di ff erent entries and condensing them down to a reasonable
+number of categories, which can then be used for analysis and AI model features. As this standardization occurs, the model
+reports a con fi dence value for each entry. It can be useful to look at those con fi dence values to see if there were any values
+that the model struggled with.
+-------------------
+Example SQL
+SELECT -- just get the 10 most common entries
+crm_leadsource, -- what's currently in the db
+count(*) as count, -- count of each
+trueai_leadsource, -- the standardized lead source
+avg(trueai_leadsource_conf) as trueai_leadsource_conf -- the avg. confidence. If confidence is too low, it
+will mark the record as ND.
+FROM leads L -- pull from leads, but the same info is in opps, accounts & contacts
+WHERE
+crm_leadsource is not null -- exclude records that are blank (they may still be populated through lookups,
+GROUP BY crm_leadsource, trueai_leadsource -- group fields
+Order by count desc -- sort by most common instances in the db
+LIMIT 10;
+-------------------
+Sample Result
+The con fi dence scores are high except for the fi rst one, but, nevertheless, it appears to use the right category. If you
+encounter a misclassi fi ed category, please send a note to api@cien.ai along with the suggested correct category. If the
+consolidation is not appropriate for your needs (e.g., you need to keep track of di ff erent list providers and compare them
+against each other), you can still use the CRM version of the fi eld, or create a new derived fi eld that uses the standardized
+TrueAI values except in speci fi c circumstances.
+crm_leadsource count trueai_leadsource trueai_leadsource_confidence
+Zoom Info 75,999 List Upload 0.80356
+Internally Sourced 17,486 Rep Lead Gen 1.00000
+Purchased List 4,882 List Upload 1.00000
+Website Form 1,273 Website 0.99915
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 8
+
+
+ZoomInfo Prospecting 594 List Upload 0.99972
+Paid Social 447 Digital Ads 0.99999
+Tradeshow 415 Event/Tradeshow 1.00000
+Organic Search 172 SEO 0.99999
+Sales Generated 172 Rep Lead Gen 1.00000
+Website Referral 151 Website 1.00000
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 9
+
+
+ADE #4: Sales Process Steps in a Year Summary (V.1.2)
+Purpose of Analysis
+The key to improve sales performance is to be able to isolate where in the sales process there are ine ffi ciencies. The TrueAI
+platform makes this very easy.
+Common Challenges and How to Accomplish with the Cien API
+To understand the steps of a customer journey you typically have to look at leads, accounts, contacts, opps and
+opps_history . The problem is that each company uses these entities slightly di ff erently and the de fi nitions when a speci fi c
+state started and ended, are often unclear and inconsistent. The TrueAI platform replaces all of that complexity with the ssr
+and ssr_history derived entities, which can give you a complete insight into the di ff erent steps and their outcomes. As
+each new step is detected, the TrueAI engine also makes a prediction on the eventual outcome of the step, based on the
+known attributes of the deal at that point (company information such as location, industry, size etc. and the level of
+engagement etc, that has occurred until that point). Please note that when that prediction is made, the owner of the current
+step is not considered (i.e., we don’t look at whether the step is assigned to a top performer or a junior rep). Therefore
+overall, over-, and underperformance of a step compared to peers can help you understand a rep’s true performance on a
+speci fi c sales task; for example in prospecting, which tends to be strongly correlated with the ability to do customer
+discovery well.
+-------------------
+Example SQL
+SELECT
+SH.step_id, -- the logical number of the step
+SH.step_name, -- the name of the step
+COUNT(SH._sys_doc_id) as steps_completed, -- how many were attempted and completed in the period
+COUNT(CASE WHEN SH.step_success= 'true' THEN SH._sys_doc_id END) as steps_succesful, -- how many of those
+steps were successful
+COUNT(CASE WHEN SH.step_success= 'true' THEN SH._sys_doc_id END) / CAST(COUNT(SH._sys_doc_id) AS Float)
+as avg_success_rate, -- calculate how often the step succeeds
+AVG(SH.step_success_prob) as pred_success_rate, -- compare to what TrueAI predicted
+AVG(CASE WHEN SH.step_success= 'true' THEN SH.step_length_in_days END) as success_cycle_days, -- how many
+days when successful
+AVG(CASE WHEN SH.step_success= 'false' THEN SH.step_length_in_days END) as failure_cycle_days, -- how
+many days when not successful
+SUM(SH.opp_won_amt) as won_amt, -- look at actual revenue for each step
+SUM(SH.vi_value_created) as value_created -- look at value created as calculated by the Value
+Intelligence (VI) tech
+FROM ssr_history AS SH -- use the SSR history to understand the steps the GTM team has completed
+INNER JOIN ssr AS S -- use the SSR to link to the actual customer record
+ON S._sys_doc_id = SH._sys_ssr_id -- primary key is always _sys_doc_id
+WHERE date_part('year', SH._sys_filt_end_date) = date_part('year', SH._sys_asof) -1 -- look at full last
+year of data (date_part 'year' in other SQL dialects)
+GROUP BY SH.step_id, SH.step_name -- group by the named steps
+ORDER BY 1; -- sort by the logical order of the steps
+-------------------
+Sample Result
+There are 6 steps in the standardized sales process. The new logo success rate is slightly higher than the predicted rate,
+whereas the upselling win rate is slightly lower. The value intelligence value creation values add up to slightly more than total
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 10
+
+
+sale, to account for the repeat value of new accounts. As in almost all organizations, the e ff ort of selling an existing account is
+lower than in a new account.
+step_
+id
+step_name steps_attempted steps_succesful avg_success_
+rate
+pred_success_
+rate
+success_cycle_
+days
+failure_cycle_
+days
+won_amount value_created
+1 Lead Gen 80,960 80,960 100.0% 100.0% - $10,855,919
+2 Untouched 60,559 13,067 21.6% 22.9% 300 180 $ (4,254,271)
+3 Prospecting 14,252 1,156 8.1% 6.8% 240 214 $27,611,706
+4 New Logo Selling 2,128 332 15.6% 20.1% 165 266 $69,493,308 $42,949,610
+5 Post Sales Support 3,523 3,267 92.7% 77.8% 69 367 $66,606,031
+6 Upselling 3,284 2,513 66.1% 69.6% 102 165 $275,136,503 $252,658,162
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 11
+
+
+ADE #5: CRM Activity Compliance by Group & Role (V.1.2)
+Purpose of Analysis
+Non-compliance of the CRM tools is a common problem. Companies invest in tools to automatically capture activities etc. It
+is important to understand if those tools are being used e ffi ciently. Once you know what activities are being missed, you can
+use this information to estimate e ff ort spent per account and rep.
+Common Challenges and How to Accomplish with the Cien API
+Using raw activity data, it is very di ffi cult to determine if a lot of it is missing. Cien looks at representative reps that log most
+of their activities, and use those to estimate the amount of time spent per sales step. If a rep in general logs the same
+amount of activities, they have a high level of compliance. If their logged activities add up to much less, their compliance is
+low. As with most TrueAI attributes, the con fi dence values are very useful to understand the quality of the prediction.
+-------------------
+Example SQL
+SELECT
+U.trueai_group, -- the name of the group
+count(DISTINCT uh._sys_user_id) as rep_count, -- total number of reps in the period
+avg(uh.ci_act_capt_lvl) as avg_act_capture_level, -- what % of activities do we estimate are actually
+logged
+avg(uh.ci_act_capt_lvl_conf) as avg_act_capture_level_confidence, -- what is the confidence in this
+assessment?
+COUNT(DISTINCT CASE WHEN U.trueai_user_role = 'Account Executive' THEN uh._sys_user_id END) as ae_count,
+-- how many of the reps are AEs?
+AVG( CASE WHEN U.trueai_user_role = 'Account Executive' THEN uh.ci_act_capt_lvl END) as
+avg_ae_act_capture_level, -- what do they log?
+COUNT(DISTINCT CASE WHEN U.trueai_user_role = 'Sales Development Rep' THEN uh._sys_user_id END) as
+sdr_count, -- how many of the reps are SDRs?
+AVG(CASE WHEN U.trueai_user_role = 'Sales Development Rep' THEN uh.ci_act_capt_lvl END) as
+avg_sdr_act_capture_level, -- what do they log?
+COUNT(DISTINCT CASE WHEN U.trueai_user_role = 'Account Manager' THEN uh._sys_user_id END) as am_count, --
+how many of the reps are AMs?
+AVG( CASE WHEN U.trueai_user_role = 'Account Manager' THEN uh.ci_act_capt_lvl END) as
+avg_am_act_capture_level -- what do they log?
+FROM users_history AS UH -- use the user history entity to get past data
+INNER JOIN users AS U -- link w/ current user list
+ON U._sys_doc_id = UH._sys_user_id -- always link via primary key _sys_doc_id
+AND UH._sys_filt_end_date > U._sys_asof - 90 -- look at the last 90 days
+AND U.trueai_termination_date is null -- do not include reps that were terminated
+GROUP BY U.trueai_group -- breakdown by group (ND is the default group)
+ORDER BY 1; -- sort the group
+-------------------
+Sample Result
+There are 2 groups plus the default ND group. The South group consisting of just AEs are logging their data really well. The
+North group’s Account Managers are not logging at the same level as their colleagues.
+trueai_group rep_count avg_act_capture_level avg_act_capture_
+level_confidence
+ae_count avg_ae_act_c
+apture_level
+sdr_count avg_sdr_act_
+capture_level
+am_count avg_am_act_capture_level
+ND 3 0% 0 0 0
+North 12 70% 78% 4 63% 6 53% 2 45%
+South 7 88% 89% 7 88% 0 0
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 12
+
+
+ADE #6: AI Prediction Quality (V.1.2)
+Purpose of Analysis
+As Yogi Berra said: “Predictions are hard. Especially about the future.” The Cien platform attempts to predict every sales step
+and many other things on an ongoing basis. To avoid model drift and declining prediction quality, as new data comes in, the
+prediction models are retrained and automatically updated online. Those quality scores are available to API developers.
+Common Challenges and How to Accomplish with the Cien API
+Most lead scoring tools provide very little transparency into the actual quality of their predictions. Cien is di ff erent. By
+looking at the companies_history entity you can get the latest quality scores on multiple quality metrics such as r 2
+(correlation of coe ffi cient) and AUC (area under curve), both from live sampling of actual outcomes and scores post-training.
+If you are concerned with the quality of a speci fi c model, please contact api@cien.ai.
+-------------------
+Example SQL
+SELECT
+CH._sys_processed_asof, -- date of processing
+CH.di_pred_prospecting_r2, -- the prospecting r2 score measured on performed predictions
+CH.di_pred_prospecting_auc, -- the AUC score measured on performed predictions
+CH.di_pred_prospecting_validation_score, -- the r2 score on the validation set during online training
+CH.di_pred_new_logo_r2, -- same for new logo
+CH.di_pred_new_logo_auc, -- the AUC score measured on performed predictions
+CH.di_pred_selling_validation_score -- the r2 score on the validation set during online training
+FROM companies_history CH -- the company history entity contains company specfic settings and stats
+related to a specific processing cycle
+ORDER BY CH._sys_processed_asof DESC -- sort by most recent
+LIMIT 5; -- just take the top 5 results
+-------------------
+Sample Result
+In this case, the two models to determine prospecting and new logo selling are performing well. The r 2 and AUC scores are
+both calculated based on the latest outcomes so they tend to fl uctuate a little for each processing cycle. The post-training
+validation score is only updated once a month when new data is applied into the training set, unless a manual re-training
+was initiated.
+_sys_processed_
+asof
+di_pred_prospecting_r2 di_pred_prospecting_auc di_pred_prospectin
+g_validation_score
+di_pred_new_logo_r2 di_pred_new_logo_auc di_pred_selling_validatio
+n_score
+6/19/2022 0.990 0.840 0.877 0.970 0.830 0.863
+6/8/2022 0.830 0.890 0.877 0.970 0.840 0.863
+6/5/2022 0.800 0.890 0.877 0.970 0.840 0.863
+6/3/2022 0.830 0.890 0.877 0.970 0.840 0.863
+6/2/2022 0.830 0.890 0.877 0.970 0.840 0.863
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 13
+
+
+Deal Intelligence (DI) - Revenue & Buyer Journey Insights
+Being able to isolate speci fi c steps in the sales process, and understand the customer factors a ff ecting outcomes is key to
+improving outcomes. The TrueAI platform makes that possible with the ssr and ssr_history entities.
+DI #1: Historical Revenue
+DI #2: Churn Analysis
+DI #3: Pipeline Creation by Sale Type & Quality
+DI #4: Pipeline Analysis by Creator Group & Role
+DI #5: Win/Loss Analysis of New Logo Sales
+DI #6: Revenue Concentration Analysis
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 14
+
+
+DI #1: Historical Revenue (V.1.2)
+Purpose of Analysis
+Knowing past years’ sales numbers may seem like the most basic analysis you can do of a GTM team, but as always, there
+are things that commonly skews the data and insights, leading to the wrong conclusions.
+Common Challenges and How to Accomplish with the Cien API
+The fi rst thing to know is whether a particular deal is the fi rst or a repeat purchase by a customer. Most RevOps teams rely
+on using the crm_opp_type fi eld in the opps entity for that information, but if you look at that fi eld carefully, you will
+usually fi nd incorrect and inconsistently tagged opps. It’s better if you also look for prior purchases by the same
+(de-duplicated) account. Other challenges may be opps with amounts in di ff erent currencies making aggregates di ffi cult.
+An easier way to get this information, is to use the ssr_history table, where the data has been normalized and it is easy
+to do sub-category summarization by year, type of sales team, role etc.
+-------------------
+Example SQL
+SELECT
+date_part('year', SH._sys_filt_end_date) as year, -- which year?
+SUM(SH.opp_won_amt) as won_amount, -- total booked revenue
+(SELECT CH.company_currency FROM companies_history CH ORDER BY _sys_asof DESC LIMIT 1) as currency, --
+get the company primary currency
+COUNT(SH._sys_doc_id) as won_deals, -- total won deals
+AVG(SH.opp_won_amt) as avg_deal_size, -- the avg won deal size
+SUM(CASE WHEN step_name = 'New Logo Selling' THEN SH.opp_won_amt END) as new_logo_amount, -- new logo
+revenue only
+SUM(CASE WHEN step_name = 'Upselling' THEN SH.opp_won_amt END) as upselling_amount, -- upselling revenue
+only
+SUM(CASE WHEN step_name = 'Upselling' AND SH.opp_sale_type = 'Expansion Sale' THEN SH.opp_won_amt END)
+as upselling_expansion_amount, -- part of upselling that's expansion sale
+SUM(CASE WHEN step_name = 'Upselling' AND SH.opp_sale_type = 'Renewal' THEN SH.opp_won_amt END) as
+upselling_renewal_amount -- part of upselling that's renewals
+FROM ssr_history AS SH -- get from the ssr history
+WHERE step_name in ('New Logo Selling', 'Upselling') -- we only care about these two steps not the rest
+AND SH.step_success = 'true' -- we only care about deals that were won
+GROUP BY date_part('year', SH._sys_filt_end_date) -- group by year
+ORDER BY 1 DESC -- sort most recent year first
+LIMIT 5; -- go back 5 years
+-------------------
+Sample Result
+In this case, the company experienced stagnating growth between 2018 – 2020. By focusing on larger deal sizes, and better
+prospecting, growth returned in 2021. Provided that churn is low, this should allow for rapid revenue growth going
+forward, since the new logo revenue compounds as those customers buy more.
+year won_amount currency won_deals avg_deal_size new_logo_amount
+2021 $47,644,159 USD 1014 $46,986 $17,460,905
+2020 $28,402,642 USD 1017 $27,928 $9,975,059
+2019 $23,934,230 USD 1168 $20,492 $7,961,850
+2018 $26,215,867 USD 1379 $19,011 $10,080,340
+2017 $ 11,313,692 USD 382 $29,617 $ 8,991,992
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 15
+
+
+DI #2: Churn Analysis (V.1.2)
+Purpose of Analysis
+Most B2B companies rely on repeat purchases by their clients, even if they do not have an explicit subscription model.
+Failing to sell to a lot of those clients again is usually considered one of the most severe GTM problems; therefore, the root
+causes must be investigated thoroughly since they can be attributed to product, customer segment, support practice,
+account management , or, more likely, a combination of those factors.
+Common Challenges and How to Accomplish with the Cien API
+It’s always helpful to have a “customer-walk” year by year, which shows starting customers, new, churned, retained and
+ending customers. With that data you can then calculate churn rate, growth rate, etc, etc. The biggest challenge is to know
+when and if an account has actually churned. CRM systems like Salesforce do not have an account status fi eld and churned
+date fi eld. Sometimes you can get this info from ERP systems; however, then you may have trouble cross-referencing it
+with the CRM data, since it uses di ff erent names and IDs.
+Cien determines the trueai_first_purchase and trueai_churned_on values for accounts in the ssr entity based on
+when the fi rst deal was won, and if there are subsequent deals within a year of that point. Please note that this analysis will
+only be valid if renewals are logged as opps in the CRM. If not, additional data from an ERP/Billing system must be
+supplied.
+-------------------
+Example SQL
+SELECT -- just the last 5 years
+Year,
+COUNT(DISTINCT CASE WHEN date_part('year', trueai_first_purchase) < Y.year AND
+COALESCE(date_part('year', trueai_churned_on),2100) >= Y.year THEN _sys_doc_id END) as boy_customers, --
+get the beginning of year customers
+COUNT(DISTINCT CASE WHEN date_part('year', trueai_first_purchase) = Y.year THEN _sys_doc_id END) as
+new_customers, -- who bought for the first time
+COUNT(DISTINCT CASE WHEN date_part('year', trueai_churned_on) = Y.year THEN _sys_doc_id END) as
+churned_customers, -- who stopped buying this year
+COUNT(DISTINCT CASE WHEN date_part('year', trueai_first_purchase) = Y.year THEN _sys_doc_id END) -
+COUNT(DISTINCT CASE WHEN date_part('year', trueai_churned_on) = Y.year THEN _sys_doc_id END) as
+net_new_customers, -- diff between new and lost
+COUNT(DISTINCT CASE WHEN date_part('year', trueai_first_purchase) <= Y.year AND
+COALESCE(date_part('year', trueai_churned_on),2100) > Y.year THEN _sys_doc_id END) as eoy_customers, --
+customers at the end of the year
+COUNT(DISTINCT CASE WHEN date_part('year', trueai_churned_on) = Y.year THEN _sys_doc_id END) / CAST(1 +
+COUNT(DISTINCT CASE WHEN date_part('year', trueai_first_purchase) < Y.year AND
+COALESCE(date_part('year', trueai_churned_on),2100) >= Y.year THEN _sys_doc_id END) as float) as
+churn_rate -- churn rate is boy / churned
+FROM ssr S -- use SSR
+CROSS JOIN (
+SELECT 2021 as year UNION
+SELECT 2020 as year UNION
+SELECT 2019 as year UNION
+SELECT 2018 as year UNION
+SELECT 2017 as year
+) as Y -- create a pseudo year table to cross reference against
+WHERE (S.trueai_account_is_master = 'true' or S.trueai_account_is_master IS NULL) -- remove dupes
+GROUP BY Y.year -- group by year
+ORDER BY 1 DESC
+LIMIT 5; -- most recent data
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 16
+
+
+-------------------
+Sample Result
+In this case, account churn was not a problem during 2018-2020, but doubled in 2021, resulting in a new decrease of active
+customers that year.
+year boy_customers new_customers churned_customers net_new_customers eoy_customers
+2021 1,396 111 175 -64 1,271
+2020 1,273 127 87 40 1,396
+2019 1,115 150 60 90 1,273
+2018 708 199 36 163 1,115
+2017 421 143 13 130 708
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 17
+
+
+DI #3: Pipeline Creation by Sale Type & Quality (V.1.2)
+Purpose of Analysis
+When surveying senior sales executives about their priorities, creating a bigger and better pipeline is almost always among
+their top 3 objectives. However, it is important to measure pipeline not just in deals and pipeline amount, but also in
+quality. It is often easy for reps to create low-quality pipeline by simply entering deals that they hope will close, doing so
+without performing the required quali fi cation steps. Cien detects this automatically.
+Common Challenges and How to Accomplish with the Cien API
+As in other deal analysis, pipeline analysis needs to be segmented between existing and new logo business, since the win
+rates tend to be quite di ff erent. You should also predict the probability of a win for each deal based on the attributes of the
+account and what has occurred until now (e.g., the level of engagement during initial discovery). This is extremely hard to
+do using raw CRM data, since you often don’t have access to clean outcomes and enough training data to build a reliable
+prediction model. Cien’s Deal Intelligence uses AI models trained on millions of records - fi ne-tuned on your speci fi c data -
+to predict those outcomes. Please see the ADE prediction accuracy example above for how to inspect the quality of deal
+predictions over time of your data.
+As with most deal analysis, we use the ssr_history entity instead of the CRM opps table, but here we are looking at the
+Prospecting (for new logo selling) and Post-Sale Support (for upselling) steps by fi ltering by step_name .
+-------------------
+Example SQL
+SELECT
+CAST(date_part('year', SH._sys_filt_end_date) as VARCHAR) || '-0' ||
+CAST(date_part('quarter',SH._sys_filt_end_date) as VARCHAR) as year_qtr, -- create a quarter value
+SUM(SH.opp_pipeline_amt) as total_pipeline_created, -- the pipeline created in the quarter
+AVG(SH.step_next_success_prob) as predicted_opp_win_rate, -- the avg. predicted win rate of that
+pipeline (pipe line quality)
+SUM(SH.step_next_success_prob * SH.opp_pipeline_amt) as predicted_opp_win_amount, -- predicted win rate
+times amount is the expected won amount resulting from this pipeline
+SUM(CASE WHEN SH.step_name = 'Prospecting' THEN SH.opp_pipeline_amt END) as new_logo_pipeline, -- just
+new logo pipeline
+AVG(CASE WHEN SH.step_name = 'Prospecting' THEN SH.step_next_success_prob END) as
+new_logo_predicted_opp_win_rate, -- the avg. predicted win rate for new logo only
+--SUM(CASE WHEN SH.step_name = 'Prospecting' THEN SH.step_next_success_prob * SH.opp_pipeline_amt END )
+as _predicted_opp_win_amount, -- win rate times amount for new logo pipeline
+SUM(CASE WHEN SH.step_name = 'Post Sales Support' THEN SH.opp_pipeline_amt END) as upselling_pipeline,
+-- just upselling pipeline
+AVG(CASE WHEN SH.step_name = 'Post Sales Support' THEN SH.step_next_success_prob END) as
+upselling_predicted_opp_win_rate -- the avg. predicted win rate for upselling only
+--SUM(CASE WHEN SH.step_name = 'Post Sales Support' THEN SH.step_next_success_prob * SH.opp_pipeline_amt
+END ) as upselling_predicted_opp_win_amount -- win rate times amount for upselling pipeline
+FROM ssr AS S
+INNER JOIN ssr_history AS SH
+ON S._sys_doc_id = SH._sys_ssr_id
+WHERE date_part('year', SH._sys_filt_end_date) >= date_part('year', SH._sys_asof) -2 AND
+date_part('year', SH._sys_filt_end_date) < date_part('year', SH._sys_asof) -- look at the last 2 full
+years
+AND (S.trueai_account_is_master = 'true' OR S.trueai_account_is_master is Null)
+AND SH.step_name in ('Prospecting', 'Post Sales Support') -- we're only interested in the steps where
+pipeline is created
+AND SH.step_success = 'true' -- we're only interested in successfully completed steps, since we want to
+determine what will happen in the next step (selling)
+GROUP BY date_part('year', SH._sys_filt_end_date), date_part('quarter', SH._sys_filt_end_date) -- group
+by quarter
+ORDER BY 1 DESC; -- order by year and quarter most recent
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 18
+
+
+-------------------
+Sample Result
+In this case, pipeline quantity has increased while pipeline quality has remained fairly steady. This is a good outcome, since
+it is easy to sacri fi ce proper quali fi cation when trying to create a bigger pipeline. Worth noting, as in most companies, the
+probability of a win from an upselling opp is signi fi cantly higher (here almost 3X).
+year_qtr total_pipeline_created predicted_opp_win
+_rate
+predicted_opp_win_
+amount
+new_logo_pipeline new_logo_predicted_
+opp_win_rate
+upselling_pipeline upselling_predicted_
+opp_win_rate
+2021-04 $193,082,451 44% $93,300,578 $29,523,197 18% $163,559,255 53%
+2021-03 $169,548,637 42% $67,557,600 $29,996,527 22% $139,552,111 50%
+2021-02 $125,370,416 44% $59,061,419 $23,573,003 19% $101,797,413 52%
+2021-01 $223,850,916 45% $116,651,892 $17,898,678 19% $205,952,238 54%
+2020-04 $204,615,052 48% $117,202,623 $20,250,146 19% $184,364,906 57%
+2020-03 $58,606,686 43% $23,979,042 $18,418,612 19% $40,188,074 56%
+2020-02 $65,489,854 44% $27,049,820 $21,363,079 19% $ 44,126,775 56%
+2020-01 $115,796,755 47% $57,469,296 $14,458,985 19% $101,337,770 55%
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 19
+
+
+DI #4: Pipeline Analysis by Creator Group & Role (V.1.2)
+Purpose of Analysis
+While creating pipeline is top-of-mind for GTM leadership, there are often doubts whether speci fi c groups and/or roles are
+contributing to the overall success of the sales team.
+Common Challenges and How to Accomplish with the Cien API
+Looking at the pipeline in aggregate is often not helpful, and it’s easy to draw very wrong conclusions. E.g., a common
+complaint is that SDRs create poorly quali fi ed pipeline that AEs then struggle to close. To determine if that is the case, you
+need to know who created the pipeline (hard if there are hando ff s at di ff erent points in the buyer journey). You also need
+to know the role of each rep, and you need to have a way to objectively measure the quality (probability of winning the
+deal) of each deal. None of this data is available in the raw CRM feed in a standardized format.
+Cien makes that analysis easy using the ssr_history and users entities. We are again relying on the
+step_next_success_prob fi eld, which contains the success prediction of the subsequent step. The
+step_success_prob predicts the probability of success in the current step. I.e., in this example the probability of a
+conversion into an opportunity.
+-------------------
+Example SQL
+SELECT
+U.trueai_group, -- the sales group
+SUM(SH.opp_pipeline_amt) as total_pipeline_created, -- the pipeline created during the period
+AVG(SH.step_next_success_prob) as predicted_opp_win_rate, -- the avg. predicted win rate of that
+pipeline (pipeline quality)
+SUM(SH.step_next_success_prob * SH.opp_pipeline_amt) as predicted_opp_win_amount, -- predicted win rate
+times amount is the expected won amount resulting from this pipeline
+SUM(CASE WHEN U.trueai_user_role_function = 'AE' THEN SH.opp_pipeline_amt END) as ae_pipeline, -- just
+pipeline created by AEs
+AVG(CASE WHEN U.trueai_user_role_function = 'AE' THEN SH.step_next_success_prob END) as
+ae_predicted_opp_win_rate, -- the avg. predicted win rate for AE only
+SUM(CASE WHEN U.trueai_user_role_function = 'SDR' THEN SH.opp_pipeline_amt END) as sdr_pipeline, -- just
+pipeline created by SDRs
+AVG(CASE WHEN U.trueai_user_role_function = 'SDR' THEN SH.step_next_success_prob END) as
+sdr_predicted_opp_win_rate -- the avg. predicted win rate for SDR only
+FROM ssr AS S -- link in SSR
+INNER JOIN ssr_history AS SH -- the SSR history gives you the bulk of the details
+ON S._sys_doc_id = SH._sys_ssr_id
+INNER JOIN users U
+ON SH.step_owner_id = U._sys_doc_id
+WHERE date_part('year', SH._sys_filt_end_date) = date_part('year', SH._sys_asof)-1 -- look at last year
+AND (S.trueai_account_is_master = 'true' OR S.trueai_account_is_master IS NULL) -- remove duplicates
+AND SH.step_name in ('Prospecting') -- let's only look at new logo prospecting
+AND SH.step_success = 'true' -- we're only interested in successfully completed steps, since we want to
+determine what will happen in the next step (selling)
+AND U.trueai_user_role_function in ('SDR','AE') -- let's exclude other roles
+GROUP BY U.trueai_group -- group by the sales team
+ORDER BY 1; -- order by group
+-------------------
+Sample Result
+In this case, pipeline quality varies across groups with the LATAM group struggling to create high-quality new logo pipeline.
+Worth noting is that the SDR generated pipeline is signi fi cantly worse than the AE pipeline for the Enterprise group.
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 20
+
+
+trueai_group total_pipeline_created predicted_opp_
+win_rate
+predicted_opp_
+win_amount
+ae_pipeline ae_predicted_opp_win_rate sdr_pipeline sdr_predicted_opp_
+win_rate
+LATAM $6,461,662 13% $842,752 $991,862 11% $5,469,800 13%
+EMEA $9,097,549 18% $1,710,604 $ 2,820,248 20% $6,277,300 18%
+Enterprise $18,275,038 18% $4,795,024 $ 3,964,363 27% $14,310,675 17%
+Mid Market $18,932,554 21% $3,734,812 $14,747,436 22% $4,185,118 17%
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 21
+
+
+DI #5: Win/Loss Analysis of New Logo Sales (V.1.2)
+Purpose of Analysis
+Everyone wants to understand the secret to winning deals. There are tons of “best practices” out there, but what is really
+interesting is what factors have made reps win deals in your GTM organization. Here is a simple analysis that highlights
+what tends to be the factors with the biggest impact.
+Common Challenges and How to Accomplish with the Cien API
+Traditional win/loss analysis is often highly qualitative. The team pulls up X number of completed deals (usually just a
+fraction of all the deals in a quarter) and looks at what happened, what the customer did, how the rep responded and any
+other facts relevant to that speci fi c deal; for example, where the customer was located or which industry it was in.
+This analysis is often useful to understand broad trends, but it does not help much in ongoing global analysis of all deals
+and the most important factors for those, since most data is usually not readily available in the CRM database. And even if
+the data points are present, they are usually not adjusted based on data quality. E.g., raw activity count may vary a lot
+depending on if the rep is automatically recording their activities or not, whereas the stakeholders_all_adj_duration
+fi eld estimates the total time the team has spent on the deal in a speci fi c step, accounting for various levels of logging and
+prep time.
+Cien makes that type of analysis available with a minimum of e ff ort using the ssr_history entity grouping by the
+step_outcome fi eld. For simplicity, this analysis does not include stakeholder roles and levels, (i.e., which dept. and
+seniority a contact has) – this information can sometimes have a big impact as well and is also available in the same entity.
+-------------------
+Example SQL
+SELECT
+SH.step_outcome, -- outcome, in this case won or lost
+AVG(SH.step_success_prob) as avg_success_prediction, -- what was the avg prediction for each outcome
+COUNT(SH._sys_doc_id) AS deal_count, -- count of deals
+AVG(SH.step_length_in_days) AS avg_days, -- see how long each cycle is on avg in days
+AVG(SH.stkhlds_all_dur) / 3600 AS avg_hours_deal, -- total time spent on the deal (divide seconds by
+3600 to get hours)
+AVG(SH.stkhlds_all_dur_eng) / 3600 as avg_engaged_hours_deal, -- how many avtivities on avg were
+engaged
+AVG(SH.stkhlds_all_dur_eng) / CAST(AVG(SH.stkhlds_all_dur +1) as float) engagement_ratio, -- get the
+ratio
+AVG(CAST(SH.stkhlds_all_contacts_count as float)) as avg_number_of_contacts_involved -- get the avg
+number of contacts (need to cast to get a decimal)
+FROM ssr_history SH -- ssr history has all the sales steps info
+WHERE SH.step_name IN ('New Logo Selling') -- we're only interested in new logo
+AND date_part('year', SH._sys_filt_end_date) = date_part('year', SH._sys_asof) - 1 -- look at full last
+year
+AND SH.step_outcome IS NOT NULL -- exclude deals that are not yet closed
+GROUP by SH.step_outcome -- group by outcome - in this case won or lost
+ORDER BY 1 DESC; -- sort by outcome
+-------------------
+Sample Result
+In this case, the analysis shows a very common pattern, that more engagement results in a won deal (i.e., the customer is
+not going “radio-silent”, and not responding to the rep’s outreach). Factors such as number of buyer contacts involved does
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 22
+
+
+not seem to have any impact on outcome. Won deals are wrapped up in around 4 months, but deals that end up being
+lost, run much longer. Not surprisingly, there is a big di ff erence (2X) in the initial prediction of the deal being won.
+It is important to recall that this prediction is done prior to any actual sales activity has started on the deal – it does not
+consider whether the deal is owned by a “good” or a “bad” rep, or exactly the e ff ort they put into it (E.g., a rep could
+potentially completely ignore a good deal, hence losing it regardless of the initial high probability).
+step_outcome avg_success_prediction deal_count avg_days avg_hours_deal avg_engaged_hours_deal engagement_ratio avg_number_of_contacts_
+involved
+Closed Won 27% 206 111 148 98 66% 3.5
+Closed Lost 13% 2,036 410 42 16 39% 3.5
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 23
+
+
+DI #6: Revenue Concentration Analysis (V.1.2)
+Purpose of Analysis
+Having too much revenue concentrated in a few large clients poses a great risk for a GTM organization. At the same time,
+many revenue leaders cite the Pareto principle (80% of your revenue comes from 20% of your clients) as almost inevitable.
+Common Challenges and How to Accomplish with the Cien API
+This analysis, unlike most other analyses, is not dependent on a lot of cleaning up of data, except that a customer with
+multiple purchases within a year needs to be consolidated.
+The tricky part of this analysis is to use running totals based on di ff erent sort orders. By using the PARTITION and OVER
+keywords in SQL, it is possible to get the number of the largest account that represents 80% of total annual revenue and
+compare that to the total number of accounts that bought in the year.
+-------------------
+Example SQL
+SELECT
+date_part('year', _sys_filt_end_date) as year, -- get the year
+SUM(opp_won_amt) as sum_sales, -- get the sum of sales
+COUNT(DISTINCT _sys_ssr_id) as customer_count, -- get # of buying customers
+AVG(opp_won_amt) as avg_sale_per_customer, -- get avg rev per account
+MAX(opp_won_amt) as biggest_customer_amt, -- get size of biggest account
+COUNT(DISTINCT CASE WHEN cumul_by_cust_size <= (total_won * 0.8) THEN _sys_ssr_id END) as
+eighty_pct_revenue_customer_count, -- include all up to 80% of rev to get pareto number
+COUNT(DISTINCT CASE WHEN cumul_by_cust_size <= (total_won * 0.8) THEN _sys_ssr_id END) /
+CAST(COUNT(DISTINCT _sys_ssr_id) as decimal) as eighty_pct_revenue_customer_percentage -- percentage of
+pareto number
+FROM -- second agg to do the rankings
+(SELECT
+_sys_filt_end_date, -- get the date
+_sys_ssr_id,
+opp_won_amt,
+ROW_NUMBER() OVER (PARTITION BY date_part('year', _sys_filt_end_date) ORDER BY _sys_filt_end_date) as
+sale_num, -- get the number of the account based on purchase date
+SUM(opp_won_amt) OVER (PARTITION BY date_part('year', _sys_filt_end_date) ORDER BY _sys_filt_end_date)
+as cumul_amt_won, -- add up sales for cumulative total based on date
+SUM(opp_won_amt) OVER (PARTITION BY date_part('year', _sys_filt_end_date)) as total_won, -- get the
+total won in the grouping (year)
+ROW_NUMBER() OVER (PARTITION BY date_part('year', _sys_filt_end_date) ORDER BY opp_won_amt DESC) as
+cust_size_rank, -- get the rank per year w/ 1 being the biggest customer
+SUM(opp_won_amt) OVER (PARTITION BY date_part('year', _sys_filt_end_date) ORDER BY opp_won_amt DESC) as
+cumul_by_cust_size -- get the ordering by size
+FROM -- first aggregation just get rev per year and account
+(SELECT
+MAX(_sys_filt_end_date) as _sys_filt_end_date, -- get the highest date for a purchase of that account
+_sys_ssr_id, -- get the unique account
+SUM(SH.opp_won_amt) as opp_won_amt -- sum up all purchases of that account
+FROM ssr_history SH
+WHERE SH.opp_won_amt > 0 -- only care about clients that bought
+AND date_part('year', SH._sys_filt_end_date) >= date_part('year', SH._sys_asof)-5 -- go back 5 years
+AND date_part('year', SH._sys_filt_end_date) < date_part('year', SH._sys_asof) -- exclude current
+partial year
+GROUP BY date_part('year', SH._sys_filt_end_date), SH._sys_ssr_id -- group by account
+) as SH_by_account -- first agg
+) as SH_w_ranking -- second agg w/ ranking agg
+GROUP BY date_part('year', _sys_filt_end_date)
+ORDER BY date_part('year', _sys_filt_end_date) DESC;
+-------------------
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 24
+
+
+Sample Result
+In this case, the revenue concentration has increased over the last 5 years, despite much higher revenue. This is due to
+the largest clients now being 10X bigger than 5 years ago; a great accomplishment of course, but it does also increase the
+revenue risk.
+year sum_sales customer_count avg_sale_per_customer biggest_customer_amt eighty_pct_revenue_customer_
+count
+eighty_pct_revenue_cust
+omer_percentage
+2021 $550,545,641 844 $50,855 $19,558,632 210 25%
+2020 $306,118,228 708 $440,506 $10,037,060 181 26%
+2019 $199,708,922 642 $315,310 $8,693,700 196 31%
+2018 $163,111,824 441 $348,462 $10,173,060 130 29%
+2017 $72,672,920 311 $221,135 $1,961,263 126 41%
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 25
+
+
+Value Intelligence (VI) - Fairness & Value Creation in the GTM Org
+If you want to understand rep performance, you must look at what value each rep received, as new leads, existing accounts, or
+new opportunities from an SDR team. Once you do, you will often fi nd that top performance is correlated with having access to
+high potential accounts and a great pipeline, created by other reps.
+VI #1: Lead Generation by Quarter broken down by Creator Dept and Quality
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 26
+
+
+VI #1: Lead Generation by Quarter broken down by Creator Dept and Quality (V.1.2)
+Purpose of Analysis
+To build new logo pipeline, you need to generate good new leads (or accounts if you use an Account Based approach). Those
+can be either inbound or outbound leads in di ff erent industries and locations. The reps should then follow up and attempt to
+convert those leads into opportunities (some companies call this Sales Quali fi ed Leads – SQL).
+The most common rep complaint is that the leads are not of good quality, and that marketing is not delivering enough lead
+generation value. That can easily be determined with this analysis.
+Common Challenges and How to Accomplish with the Cien API
+The challenge to determine lead value comes down to having accurate prediction of the propensity of a speci fi c lead to convert.
+To do so depends on a lot of factors and is usually not available in the CRM data. Sometimes the company does employ a lead
+scoring algorithm, but unless there is transparency in how the scoring works, it is often just a rough guide to which leads are
+the most likely to convert. As with other areas, duplicates of leads and accounts will often cause confusing results, unless
+recti fi ed prior to analysis.
+Unlike most other analyses, we are using the hat_leads entity here instead of the ssr_history, since it combines the fi rst three
+standardized steps in the sales process (lead gen, untouched and prospecting), hence making the queries easier to understand.
+We then join with the users entity to understand who created the lead so we can compare outcomes.
+-------------------
+Example SQL
+CAST(date_part('year', HL._sys_filt_start_date) as VARCHAR) || '-0' || CAST(date_part('quarter',
+HL._sys_filt_start_date) as varchar) as year_qtr, -- the year and quarter
+Count(HL._sys_doc_id) as lead_gen_count, -- how many leads were generated
+COUNT(CASE WHEN HL.trueai_first_touch is not null THEN HL._sys_doc_id END ) as touched_count, -- how many
+of those were touched
+COUNT(CASE WHEN HL.trueai_converted_date is not null THEN HL._sys_doc_id END ) as converted_count, -- how
+many were converted into opps?
+AVG(HL.trueai_probability_of_conversion) as prob_conversion, -- what was the avg prediction probability of
+conversion of all?
+AVG(CASE WHEN HL.trueai_first_touch is not null THEN HL.trueai_probability_of_conversion END) as
+prob_conversion_of_touched, -- what was the prediction probaility of conversion on the ones that were
+actially touched
+COUNT(CASE WHEN U.trueai_user_role_dept = 'MKT' THEN HL._sys_doc_id END) as lead_count_mktng_gen, -- how
+many were generated by the Marketing Dept?
+COUNT(CASE WHEN U.trueai_user_role_dept = 'SALES' THEN HL._sys_doc_id END) as lead_count_sales_gen, -- how
+many were generated by the Sales Dept?
+AVG(CASE WHEN U.trueai_user_role_dept = 'MKT' THEN HL.trueai_probability_of_conversion END) as
+prob_conversion_mktng_gen, -- what was the avg. predicted prob of the marketing leads
+AVG(CASE WHEN U.trueai_user_role_dept = 'SALES' THEN HL.trueai_probability_of_conversion END) as
+prob_conversion_sales_gen, -- what was the avg predictied prob of the sales lead?
+SUM(HL.trueai_vi_leadgen_value) as vi_lead_gen_value -- what was the value intelligence lead value for the
+leads in the quarter?
+FROM hat_leads AS HL -- use hat_leads instead of SSR to look at the prospecting in a single row
+(ssr_history has 3 steps)
+INNER JOIN users AS U -- link in users to understand creator role
+ON HL.trueai_creator_id = U._sys_doc_id -- always _sys_doc_id is PK
+WHERE date_part('year', HL._sys_filt_start_date) > date_part('year', HL._sys_asof) - 2 -- look back 1 year
+AND date_part('year', HL._sys_filt_start_date) <> date_part('year', HL._sys_asof) -- do not include
+current partial year
+GROUP BY date_part('year', HL._sys_filt_start_date), date_part('quarter', HL._sys_filt_start_date) -- group
+by year and quarter
+ORDER BY 1 DESC; -- most recent first
+-------------------
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 27
+
+
+Sample Result
+In this case, the absolute number of leads generated per quarter has remained fairly steady. Around 25% of those are actively
+prospected by the sales team. The team is picking leads that are more likely to be converted. Around 5% of the leads are
+generated by the sales team themselves. The value created follows the multiplication of the expected probability of conversion
+and total volume of leads.
+year_qtr lead_gen_
+count
+touched_
+count
+converted
+_count
+prob_co
+nversion
+prob_conversio
+n_of_touched
+lead_count_
+mktng_gen
+lead_count
+_sales_gen
+prob_conversio
+n_mktng_gen
+prob_conversi
+on_sales_gen
+vi_lead_gen_v
+alue
+2021-04 471,002 103,776 23,677 2.0% 7.2% 449,597 18,204 1.4% 15.5% $21,708,564
+2021-03 536,079 101,524 26,233 1.1% 5.1% 510,903 20,473 0.7% 9.8% $18,531,651
+2021-02 472,931 94,659 25,901 1.3% 4.7% 396,213 72,037 0.7% 3.6% $19,138,033
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 28
+
+
+Coaching Intelligence (CI) - Rep Skills & Behavior Analysis
+Every GTM organization wants to develop their reps, but if you don’t understand their current behavior and skills, it is hard to
+provide meaningful individualized coaching, and next to impossible to evaluate the e ff ectiveness of di ff erent training, available
+tools, etc. Cien changes that. Now, previously unavailable data points are at your fi ngertips.
+CI #1: Rep Hiring & Termination Analysis
+CI #2: Time to Lead
+CI #3: Quarterly Rep Performance Analysis
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 29
+
+
+CI #1: Rep Hiring & Termination Analysis (V.1.2)
+Purpose of Analysis
+Just like you need to understand gained and lost accounts, you need to understand how the size of the sales team has
+changed over time and the makeup of the roles of the team.
+Common Challenges and How to Accomplish with the Cien API
+Unless you have access to accurate historical HR records, building this type of analysis from just CRM data can be di ffi cult
+since the typical CRM database typically has hundreds or thousands of users that are not directly part of the sales team.
+The challenges are to determine what roles users have, if they are managers or individual contributors and if they are still
+working or have been terminated (but perhaps not yet set to inactive). Cien does that automatically, and also has an Admin
+tool that lets you override the role, group and manager classi fi cation manually. That way you know you have the correct
+base data for all other performance analysis (because it would not make a lot of sense to compare junior SDR with a Senior
+Enterprise rep for example).
+This data resides in the users entity, which then gets copied over to the users_history table, so it can be tracked over time.
+As with most other entities, this data gets retroactively populated for multiple years upon initial processing of a CRM
+dataset.
+The key fi elds are the trueai_user_role (a set of 15 speci fi c CRM user roles), trueai_user_role_function
+(consolidated into higher level functions such as AE, AM, SDR etc.) and trueai_termination_date (which looks for
+multiple signals that a user is terminated – e.g. no logins or no activities in addition to the active fl ag).
+-------------------
+Example SQL
+SELECT
+Y.year as year, -- the year
+COUNT(DISTINCT CASE WHEN date_part('year', U.trueai_hire_date) < Y.year AND date_part('year',
+COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) >= Y.Year THEN U._sys_doc_id END) as
+sales_user_count_boy, -- users in the beginning of the year
+COUNT(DISTINCT CASE WHEN date_part('year', U.trueai_hire_date) = Y.year THEN U._sys_doc_id END) as
+sales_user_hired, -- count of hired
+COUNT(DISTINCT CASE WHEN date_part('year', COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) =
+Y.year THEN U._sys_doc_id END)* -1 as sales_user_terminated, -- count of terminated (turn into neg
+number)
+COUNT(DISTINCT CASE WHEN date_part('year', U.trueai_hire_date) <= Y.year AND date_part('year',
+COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) > Y.Year THEN U._sys_doc_id END) as
+sales_user_count_eoy, -- end of year count, should match next year boy
+COUNT(DISTINCT CASE WHEN U.trueai_user_role_function = 'AE' AND date_part('year', U.trueai_hire_date) <=
+Y.year AND date_part('year', COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) > Y.Year THEN
+U._sys_doc_id END) as ae_count_eoy, -- account execs s at end of year (use user_role_function field
+instead of user_role to simplify query)
+COUNT(DISTINCT CASE WHEN U.trueai_user_role_function = 'AM' AND date_part('year', U.trueai_hire_date) <=
+Y.year AND date_part('year', COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) > Y.Year THEN
+U._sys_doc_id END) as am_count_eoy,-- account managers at end of year (use user_role_function field
+instead of user_role to simplify query)
+COUNT(DISTINCT CASE WHEN U.trueai_user_role_function = 'SDR' AND date_part('year', U.trueai_hire_date)
+<= Y.year AND date_part('year', COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) > Y.Year
+THEN U._sys_doc_id END) as sdr_count_eoy,-- sales development reps at end of year (use
+user_role_function field instead of user_role to simplify query)
+COUNT(DISTINCT CASE WHEN U.trueai_user_role_function = 'MGMT' AND date_part('year', U.trueai_hire_date)
+<= Y.year AND date_part('year', COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) > Y.Year
+THEN U._sys_doc_id END) as mgmt_count_eoy,-- managers at end of year (use user_role_function field
+instead of user_role to simplify query)
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 30
+
+
+COUNT(DISTINCT CASE WHEN U.trueai_user_role_function = 'OTHER' AND date_part('year', U.trueai_hire_date)
+<= Y.year AND date_part('year', COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) > Y.Year
+THEN U._sys_doc_id END) as other_count_eoy,-- others (e.g. sales engineers) at end of year (use
+user_role_function field instead of user_role to simplify query)
+COUNT(DISTINCT CASE WHEN date_part('year', U.trueai_hire_date) <= Y.year AND date_part('year',
+COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) > Y.Year THEN U._sys_doc_id END) /
+CAST(COUNT(DISTINCT CASE WHEN U.trueai_user_role_function = 'MGMT' AND date_part('year',
+U.trueai_hire_date) <= Y.year AND date_part('year', COALESCE(U.trueai_termination_date, make_date(2100,
+1,1))) > Y.Year THEN U._sys_doc_id END) as decimal) as rep_mgr_ratio_eoy
+FROM users as U -- get the user info
+CROSS JOIN (
+SELECT 2021 as year UNION
+SELECT 2020 as year UNION
+SELECT 2019 as year UNION
+SELECT 2018 as year UNION
+SELECT 2017 as year
+) as Y -- create a pseudo year table to cross reference against
+WHERE U.trueai_user_role_dept = 'SALES' -- only the sales users
+GROUP BY Y.year -- group by year
+ORDER BY 1 DESC; -- most recent data
+-------------------
+Sample Result
+In this case, the team has grown consistently for the last 5 years, with the biggest increase in account management,
+re fl ecting the larger # of supported accounts. Rep to manager ratio (including supporting roles like Sales Engineers) has
+decreased to 4.7 from around 3.5 a few years ago.
+year sales_user_
+count_boy
+sales_user_
+hired
+sales_user_
+terminated
+sales_user_
+count_eoy
+ae_count_
+eoy
+am_count_
+eoy
+sdr_count_
+eoy
+mgmt_count_
+eoy
+other_count_
+eoy
+rep_mgr_ratio_
+eoy
+2021 1954 731 -464 2221 571 358 206 471 615 4.7
+2020 1583 573 -202 1954 546 298 170 445 495 4.3
+2019 1303 552 -272 1583 451 241 111 409 371 3.8
+2018 995 510 -202 1303 370 212 89 357 275 3.7
+2017 766 459 -230 995 249 175 78 295 198 3.5
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 31
+
+
+CI #2: Time to Lead (V.1.2)
+Purpose of Analysis
+It is well known that there is a bene fi t to responding quickly to inbound leads. However, there may be doubts about how
+critical response time is in a speci fi c organization and how good the reps are on average to respond to inbound leads. This
+analysis makes it easy to answer those questions.
+Common Challenges and How to Accomplish with the Cien API
+To determine lead conversion (into a sales quali fi ed lead), you fi rst need to have a set of clean lead records. Using the CRM
+leads entity will often trick you, since the conversion may not be recorded correctly, and there might be multiple leads per
+account, skewing the results downwards. We recommend that you use the derived hat_leads entity instead, which solves
+that problem. Secondly, it’s important to understand which of the leads are inbound. Cien makes that easy by creating a
+trueai_leadsource_is_inbound fi eld. And lastly, you need to look at activity and conversion patterns to determine
+when a lead was actually touched. The trueai_first_touch fi eld gives you that information.
+-------------------
+Example SQL
+SELECT
+CASE WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) > 7 THEN 'Over a week'
+WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) > 3 THEN 'Over three days'
+WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) > 1 THEN 'Over one day'
+WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) * 24 > 6 THEN 'Over 6 hours'
+WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) * 24 > 1 THEN 'Over 1 hour'
+ELSE 'Within Minutes' END as time_to_touch_bucket, -- derived bucket
+AVG(CAST( HL.trueai_first_touch - HL.trueai_createdon as float) ) * 24 as avg_hours, -- time in hours
+count(HL.trueai_first_touch) as touched_leads, -- total touched leads
+AVG(HL.trueai_probability_of_conversion) as pred_conversion_rate, -- the expected prediction rate
+(gives you the overall quality but will not match the outcome rate because of the filters)
+count(HL.trueai_converted_date) as converted,
+(count(HL.trueai_converted_date) / CAST(COUNT(trueai_first_touch) as float)) as actual_conversion_rate
+FROM hat_leads HL -- use hat_leads since those have been consolidated if there were multiple leads
+and/or accounts from a single company
+WHERE HL._sys_filt_end_date BETWEEN HL._sys_asof - 180 AND HL._sys_asof - 90 -- let's only look at the
+last 90 days
+AND HL.trueai_leadsource_is_inbound = 'true' -- we're only interested in inbound leads coming to us
+AND CAST( HL.trueai_first_touch - HL.trueai_createdon as float) < 21 -- there are leads that are not
+touched for over 3 weeks - let's exclude those
+GROUP BY
+CASE WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) > 7 THEN 'Over a week'
+WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) > 3 THEN 'Over three days'
+WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) > 1 THEN 'Over one day'
+WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) * 24 > 6 THEN 'Over 6 hours'
+WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) * 24 > 1 THEN 'Over 1 hour'
+ELSE 'Within Minutes' END -- great a derived category field and group by it
+ORDER BY avg_hours DESC; -- sort by slowest response first
+-------------------
+Sample Result
+There is a dramatic di ff erence in outcome between responding immediately and later. The pred_conversion_rate
+allows you to understand if the reps are already selecting the best leads for fast follow up (that is the case here). In general,
+this sales organization is fairly good at responding quickly to leads.
+time_to_touch_bucket avg_hours touched_leads pred_conversion_rate converted actual_conversion_rate
+Over a week 855.9 85 10% 7 8%
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 32
+
+
+Over three days 120.1 71 15% 9 13%
+Over one day 47.8 43 21% 11 26%
+Over 6 hours 17.1 45 17% 6 13%
+Over 1 hour 2.6 85 18% 12 14%
+Within Minutes 0.1 840 23% 215 26%
+^ Top
+Copyright © 2023 - Cien, Inc. - All Rights Reserved. 33
