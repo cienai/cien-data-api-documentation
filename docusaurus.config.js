@@ -20,11 +20,11 @@ const config = {
         src: 'img/logo.svg',
       },
       items: [
-        { type: 'doc', docId: 'intro', position: 'left', label: 'Get started' },
-        { type: 'doc', docId: 'examples', position: 'left', label: 'Examples' },
-        { type: 'doc', docId: 'queries', position: 'left', label: 'Queries' },
-        { type: 'docSidebar', sidebarId: 'docs', position: 'left', label: 'Entities' },
-        { type: 'doc', docId: 'rules', position: 'left', label: 'Rules' },
+        { type: 'doc', docId: 'intro', position: 'left', label: 'Get started', className: 'nav-item--intro' },
+        { type: 'doc', docId: 'examples', position: 'left', label: 'Examples', className: 'nav-item--examples' },
+        { type: 'doc', docId: 'queries', position: 'left', label: 'Queries', className: 'nav-item--queries' },
+        { type: 'docSidebar', sidebarId: 'docs', position: 'left', label: 'Entities', className: 'nav-item--entities' },
+        { type: 'doc', docId: 'rules', position: 'left', label: 'Rules', className: 'nav-item--rules' },
       ],
     },
     footer: {

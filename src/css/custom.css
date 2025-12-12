@@ -48,6 +48,40 @@
   display: inline-flex;
 }
 
+/* Mobile drawer/menu icons for nav items */
+.menu__link.nav-item--intro::before,
+.menu__link.nav-item--examples::before,
+.menu__link.nav-item--queries::before,
+.menu__link.nav-item--entities::before,
+.menu__link.nav-item--rules::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  background-color: currentColor;
+}
+.menu__link.nav-item--intro::before {
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><path d='M2 3h5a2 2 0 012 2v8H4a2 2 0 00-2-2V3z' stroke='currentColor' stroke-width='1.5'/><path d='M14 3h-5a2 2 0 00-2 2v8h5a2 2 0 012-2V3z' stroke='currentColor' stroke-width='1.5'/></svg>") no-repeat center / contain;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><path d='M2 3h5a2 2 0 012 2v8H4a2 2 0 00-2-2V3z' stroke='currentColor' stroke-width='1.5'/><path d='M14 3h-5a2 2 0 00-2 2v8h5a2 2 0 012-2V3z' stroke='currentColor' stroke-width='1.5'/></svg>") no-repeat center / contain;
+}
+.menu__link.nav-item--examples::before {
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><path d='M6 4L3 8l3 4' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/><path d='M10 4l3 4-3 4' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat center / contain;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><path d='M6 4L3 8l3 4' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/><path d='M10 4l3 4-3 4' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat center / contain;
+}
+.menu__link.nav-item--queries::before {
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><path d='M2 4h12M4 8h8M6 12h4' stroke='currentColor' stroke-width='1.5' stroke-linecap='round'/></svg>") no-repeat center / contain;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><path d='M2 4h12M4 8h8M6 12h4' stroke='currentColor' stroke-width='1.5' stroke-linecap='round'/></svg>") no-repeat center / contain;
+}
+.menu__link.nav-item--entities::before {
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><ellipse cx='8' cy='3' rx='5' ry='2' stroke='currentColor' stroke-width='1.5'/><path d='M3 3v8c0 1.1 2.2 2 5 2s5-.9 5-2V3' stroke='currentColor' stroke-width='1.5'/></svg>") no-repeat center / contain;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><ellipse cx='8' cy='3' rx='5' ry='2' stroke='currentColor' stroke-width='1.5'/><path d='M3 3v8c0 1.1 2.2 2 5 2s5-.9 5-2V3' stroke='currentColor' stroke-width='1.5'/></svg>") no-repeat center / contain;
+}
+.menu__link.nav-item--rules::before {
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><rect x='2' y='2' width='12' height='12' rx='2' stroke='currentColor' stroke-width='1.5'/><path d='M4 5l2 2 5-3' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/><path d='M4 9l2 2 5-3' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat center / contain;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><rect x='2' y='2' width='12' height='12' rx='2' stroke='currentColor' stroke-width='1.5'/><path d='M4 5l2 2 5-3' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/><path d='M4 9l2 2 5-3' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat center / contain;
+}
+
 /* Docs page: make tables more compact and use full width */
 .theme-doc-markdown table {
   font-size: 0.9rem;
