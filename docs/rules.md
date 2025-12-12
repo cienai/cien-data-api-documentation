@@ -6,6 +6,8 @@ This page lists global rules and conventions that apply across datasets and exam
 
 <!-- Transcribe from PDF rule list -->
 
+> TODO: Paste content from the PDF here. Use the sections below to map 1:1 with the PDF’s headings.
+
 ## Naming
 - IDs, snake_case vs camelCase, prefixes, etc.
 
