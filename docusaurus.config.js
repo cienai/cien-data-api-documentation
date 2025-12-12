@@ -3,15 +3,30 @@ const config = {
   tagline: 'Cien API Documentation',
   favicon: 'img/favicon.ico',
 
-  // 🔴 CRITICAL FOR GITHUB PAGES
   url: 'https://cienai.github.io',
   baseUrl: '/cien-api-documentation/',
 
   organizationName: 'cienai',
   projectName: 'cien-api-documentation',
 
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  themeConfig: {
+    navbar: {
+      title: '', // 👈 remove text title (logo-only look)
+      logo: {
+        alt: 'Cien',
+        src: 'img/logo.svg',
+        href: '/', // homepage
+      },
+      items: [
+        {
+          type: 'docSidebar',
+          sidebarId: 'docs',
+          position: 'left',
+          label: 'Docs',
+        },
+      ],
+    },
+  },
 
   presets: [
     [
