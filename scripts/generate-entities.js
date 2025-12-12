@@ -6,6 +6,7 @@ const csv = require('csv-parser');
 const DOCS_DIR = path.resolve('docs/entities');
 // Default CSV lives under the workspace's data/ directory
 const DEFAULT_CSV = path.join('data', 'metadata_fields.csv');
+const ENTITY_DESCRIPTIONS_PATH = path.resolve('data', 'entity_descriptions.json');
 
 // ---------- HELPERS ----------
 function slugify(str) {
@@ -55,6 +56,28 @@ fs.createReadStream(csvPath)
     rowsByEntity[entity].push(row);
   })
   .on('end', () => {
+    // Load or create entity descriptions map
+    let entityDescriptions = {};
+    if (fs.existsSync(ENTITY_DESCRIPTIONS_PATH)) {
+      try {
+        entityDescriptions = JSON.parse(fs.readFileSync(ENTITY_DESCRIPTIONS_PATH, 'utf8')) || {};
+      } catch {}
+    }
+
+    // If descriptions file missing entries or missing entirely, seed it with blank values
+    const allEntities = Object.keys(rowsByEntity);
+    let seeded = false;
+    allEntities.forEach((e) => {
+      if (!(e in entityDescriptions)) {
+        entityDescriptions[e] = '';
+        seeded = true;
+      }
+    });
+    if (seeded || !fs.existsSync(ENTITY_DESCRIPTIONS_PATH)) {
+      fs.mkdirSync(path.dirname(ENTITY_DESCRIPTIONS_PATH), { recursive: true });
+      fs.writeFileSync(ENTITY_DESCRIPTIONS_PATH, JSON.stringify(entityDescriptions, null, 2));
+      console.log(`ℹ️  Updated descriptions file: ${ENTITY_DESCRIPTIONS_PATH}`);
+    }
     Object.entries(rowsByEntity).forEach(([entity, rows]) => {
       const entityDir = path.join(DOCS_DIR, entity);
       fs.mkdirSync(entityDir, { recursive: true });
@@ -65,13 +88,16 @@ fs.createReadStream(csvPath)
       const headers = (globalHeaderOrder || Array.from(headersSet))
         .filter(h => headersSet.has(h));
 
+  const descriptionText = (entityDescriptions[entity] || '').trim();
+
   const frontMatter = `---
 title: ${entity}
 hide_table_of_contents: true
 ---
 
-This entity represents **${entity}** records in the Cien platform.
+${descriptionText || `This entity represents **${entity}** records in the Cien platform.`}
 `;
+
 
       // Do NOT include a trailing newline at the end of the header separator row,
       // otherwise we end up with a blank line before the first table row which

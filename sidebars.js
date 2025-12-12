@@ -15,6 +15,7 @@ module.exports = {
     'intro',
     'examples',
     'api-reference',
+    'rules',
     {
       type: 'category',
       label: 'Entities',
