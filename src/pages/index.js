@@ -14,9 +14,9 @@ export default function Home() {
         />
 
         <h1>Cien API</h1>
-        <p>
-          Official documentation for accessing and integrating with
-          Cien’s customer intelligence platform.
+        <p style={{ maxWidth: 900, margin: '0 auto 1.5rem' }}>
+          The Cien API allows developers to access the underlying data from Cien’s TrueAI platform,
+          built to enable sales and marketing technology applications and analytics in completely new ways.
         </p>
 
         <div style={{ marginTop: '2rem' }}>
@@ -28,11 +28,16 @@ export default function Home() {
             Examples
           </Link>
 
-          <Link className="button button--secondary margin--sm" to={useBaseUrl('docs/rules')}>
-            Rules
-          </Link>
           <Link className="button button--secondary margin--sm" to={useBaseUrl('docs/queries')}>
             Queries
+          </Link>
+
+          <Link className="button button--secondary margin--sm" to={useBaseUrl('docs/entities/contacts/')}>
+            Entities
+          </Link>
+
+          <Link className="button button--secondary margin--sm" to={useBaseUrl('docs/rules')}>
+            Rules
           </Link>
         </div>
       </main>
