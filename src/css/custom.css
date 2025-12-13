@@ -40,7 +40,11 @@
 
 /* Always use hamburger: hide inline left nav, show toggle, keep right items (search) visible */
 .navbar__items--left,
-.navbar__items--right,
+.navbar__items--right {
+  display: none !important;
+}
+/* Hide any inline nav links */
+.navbar__link,
 .navbar__items .navbar__item {
   display: none !important;
 }
@@ -123,6 +127,12 @@ html:not([data-theme='dark']) .footer .footer__link-item {
 /* Remove any footer link icons/pseudo-elements */
 .footer a::before,
 .footer .footer__link-item::before {
+  content: none !important;
+  background: none !important;
+}
+/* Remove external link icons that render as ::after */
+.footer a::after,
+.footer .footer__link-item::after {
   content: none !important;
   background: none !important;
 }
