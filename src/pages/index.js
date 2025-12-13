@@ -6,7 +6,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 export default function Home() {
   return (
     <Layout title="Cien API">
-      <main className="hero" style={{ padding: '4rem 2rem', position: 'relative' }}>
+  <main className="hero" style={{ padding: '6rem 2rem', position: 'relative' }}>
         <div className="home-hero-content" style={{ textAlign: 'center' }}>
           <h1 style={{ marginBottom: '0.75rem' }}>Cien API</h1>
           <p style={{ maxWidth: 900, margin: '0 auto 1.5rem' }}>
