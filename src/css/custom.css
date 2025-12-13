@@ -51,7 +51,9 @@
 .navbar .navbar__inner,
 .navbar .navbar__inner .container {
   background-color: #212228 !important;
+  background-image: none !important;
   box-shadow: none !important;
+  border-bottom: 0 !important;
 }
 
 /* Header navigation item colors */
