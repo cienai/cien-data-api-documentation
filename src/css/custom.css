@@ -54,12 +54,29 @@
 
 /* Ensure hamburger (mobile drawer) works at all viewport widths */
 .navbar-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 320px;
+  background: var(--ifm-background-color);
+  box-shadow: -2px 0 12px rgba(0,0,0,0.2);
+  transform: translateX(100%);
+  transition: transform 0.2s ease-in-out;
   z-index: 2000;
 }
 .navbar-sidebar--active {
-  display: block !important;
-  visibility: visible !important;
-  transform: none !important;
+  transform: translateX(0);
+}
+.navbar-sidebar__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 1999;
+  display: none;
+}
+.navbar-sidebar--active ~ .navbar-sidebar__backdrop {
+  display: block;
 }
 
 /* Mobile drawer/menu icons for nav items */
@@ -114,15 +131,16 @@
 
 /* Footer: lighter grey background on light theme; text same as main background color */
 /* Footer: darker background than hero, text same as hero background (typically white) */
-html:not([data-theme='dark']) .footer {
-  background-color: #2D2E3B; /* requested dark background */
-  color: #6d7084; /* requested text color */
+/* Footer colors consistent for light & dark */
+.footer {
+  background-color: #2D2E3B !important; /* requested dark background */
+  color: #6d7084 !important; /* requested text color */
 }
-html:not([data-theme='dark']) .footer a,
-html:not([data-theme='dark']) .footer h4,
-html:not([data-theme='dark']) .footer li,
-html:not([data-theme='dark']) .footer .footer__link-item {
-  color: #6d7084;
+.footer a,
+.footer h4,
+.footer li,
+.footer .footer__link-item {
+  color: #6d7084 !important;
 }
 /* Remove any footer link icons/pseudo-elements */
 .footer a::before,
