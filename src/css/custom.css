@@ -20,6 +20,9 @@
   --ifm-container-width-xl: 1800px;
   /* Slightly smaller base font for denser tables */
   --ifm-font-size-base: 15px;
+  /* Force navbar and footer background colors (light mode) */
+  --ifm-navbar-background-color: #212228;
+  --ifm-footer-background-color: #212228;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -32,6 +35,9 @@
   --ifm-color-primary-lighter: #32d8b4;
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  /* Force navbar and footer background colors (dark mode) */
+  --ifm-navbar-background-color: #212228;
+  --ifm-footer-background-color: #212228;
 }
 
 .navbar__logo img {
