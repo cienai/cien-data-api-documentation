@@ -45,8 +45,11 @@
 }
 
 /* Header background color uniform across light/dark */
-.navbar {
+.navbar,
+.navbar.navbar--fixed,
+.navbar .navbar__inner {
   background-color: #212228 !important;
+  box-shadow: none !important;
 }
 
 /* Show inline navigation at all widths; remove hamburger */

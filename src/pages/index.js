@@ -2,7 +2,8 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import bannerUrl from '@site/static/img/cien_banner.png';
+// Use require with .default to ensure correct public URL in Docusaurus builds
+const bannerUrl = require('@site/static/img/cien_banner.png').default;
 
 export default function Home() {
   return (
