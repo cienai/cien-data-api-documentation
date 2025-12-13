@@ -38,6 +38,15 @@
   height: 28px;
 }
 
+/* Show inline navigation at all widths; remove hamburger */
+.navbar .navbar__items--left,
+.navbar .navbar__items--right {
+  display: inline-flex !important;
+}
+.navbar__toggle {
+  display: none !important;
+}
+
 /* Always use hamburger: hide inline left nav, show toggle, keep right items (search) visible */
 /* Removed forced hamburger visibility to restore default behavior */
 
