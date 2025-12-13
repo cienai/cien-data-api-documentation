@@ -151,7 +151,7 @@
   font-family: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 700;
   line-height: 0.9;
-  color: rgba(242, 242, 242, 0.2); /* ~80% transparent */
+  color: rgba(242, 242, 242, 0.05); /* ~95% transparent */
   font-size: clamp(64px, 18vw, 240px);
   z-index: 0;
   pointer-events: none;
@@ -163,6 +163,12 @@
   margin: 0 auto;
   text-align: center;
   padding-top: 2.5rem; /* move content down a bit */
+}
+
+/* Make hero background uniform dark, remove any gradient */
+.hero {
+  background-color: #2D2E3B !important;
+  background-image: none !important;
 }
 
 /* Hero title: Montserrat bold and larger */
