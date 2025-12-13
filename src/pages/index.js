@@ -40,7 +40,7 @@ export default function Home() {
         {/* Banner above footer */}
         <div style={{ marginTop: '3rem', textAlign: 'center' }}>
           <img
-            src={useBaseUrl('static/img/cien_banner.png')}
+            src={useBaseUrl('img/cien_banner.png')}
             alt="Cien banner"
             style={{ display: 'block', maxWidth: 1200, width: '100%', height: 'auto', margin: '0 auto' }}
           />

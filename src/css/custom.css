@@ -169,6 +169,8 @@
 .hero {
   background-color: #2D2E3B !important;
   background-image: none !important;
+  overflow: hidden; /* prevent pseudo-element from spilling into next section */
+  min-height: 65vh; /* ensure uniform dark area across hero */
 }
 
 /* Hero title: Montserrat bold and larger */
