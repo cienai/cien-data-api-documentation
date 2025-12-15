@@ -32,6 +32,18 @@
   --ifm-footer-background-color: #212228;
 }
 
+/* Thin footer styling for non-home pages */
+.thin-footer .footer__bottom {
+  padding: 8px 0;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* Ensure minimal spacing when thin footer is used */
+.thin-footer {
+  padding-top: 0;
+}
+
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
   /* Global accent color (dark theme) */
