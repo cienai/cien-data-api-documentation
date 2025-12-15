@@ -63,8 +63,6 @@ module.exports = {
         },
       ],
     },
-    'rules',
-    'naming-conventions',
     {
       type: 'category',
       label: 'Entities',
@@ -74,5 +72,7 @@ module.exports = {
         ...entityItems,
       ],
     },
+    'naming-conventions',
+    'rules',
   ],
 };
