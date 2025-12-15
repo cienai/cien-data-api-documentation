@@ -37,6 +37,7 @@ module.exports = {
           items: [
             'di/di-001',
             'di/di-002',
+            'di/di-003',
           ],
         },
         {
