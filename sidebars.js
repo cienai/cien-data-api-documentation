@@ -46,6 +46,7 @@ module.exports = {
           collapsed: false,
           items: [
             'vi/vi-001',
+            'vi/vi-002',
           ],
         },
         {
