@@ -314,6 +314,12 @@
   padding-top: 2.5rem; /* move content down a bit */
 }
 
+/* Ensure hero text is white in dark mode for contrast */
+[data-theme='dark'] .home-hero-content h1,
+[data-theme='dark'] .home-hero-content p {
+  color: #ffffff !important;
+}
+
 /* Make hero background uniform dark, remove any gradient */
 .hero {
   background-color: #2D2E3B !important;
