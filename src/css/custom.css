@@ -200,13 +200,24 @@
   color: #61C1C5 !important;
 }
 
-/* Mobile menu link colors to match */
-.menu__link {
+/* Mobile header menu link colors only (do not affect docs sidebar) */
+.navbar .menu__link {
   color: #ffffff !important;
 }
-.menu__link.menu__link--active {
+.navbar .menu__link.menu__link--active {
   color: #61C1C5 !important;
 }
+
+/* Docs sidebar: ensure readable text in light mode */
+[data-theme='light'] .theme-doc-sidebar-menu .menu__link { color: #000000 !important; }
+[data-theme='light'] .theme-doc-sidebar-menu .menu__link.menu__link--active,
+[data-theme='light'] .theme-doc-sidebar-menu .menu__link:hover,
+[data-theme='light'] .theme-doc-sidebar-menu .menu__link:focus { color: #61C1C5 !important; }
+[data-theme='light'] .theme-doc-sidebar-item-category .menu__link { color: #000000 !important; }
+[data-theme='light'] .menu__caret { color: #000000 !important; }
+
+/* Prefer CSS vars for sidebar menu color in light mode */
+[data-theme='light'] { --ifm-menu-color: #000000; }
 
 /* In both themes, keep the same toggle colors */
 [data-theme='dark'] .navbar button[aria-label*="Switch between dark and light mode"],
