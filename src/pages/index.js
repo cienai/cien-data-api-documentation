@@ -16,7 +16,7 @@ export default function Home() {
             built to enable sales and marketing technology applications and analytics in completely new ways.
           </p>
 
-          <p style={{ maxWidth: 900, margin: '0 auto 1.5rem', fontSize: '14px', opacity: 0.95 }}>
+          <p style={{ maxWidth: 900, margin: '0 auto 1.5rem', fontSize: '18px', opacity: 0.95 }}>
             Use this documentation to explore available data entities, understand how data is enhanced and derived by the platform,
             and reference example queries that illustrate common analytical patterns.
           </p>
