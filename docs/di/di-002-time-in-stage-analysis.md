@@ -3,6 +3,7 @@ id: di-002
 title: Time in Stage Analysis
 version: v1.0
 category: Deal Intelligence
+slug: /di/di-002
 ---
 
 ## Description
