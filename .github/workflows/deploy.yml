@@ -50,6 +50,7 @@ jobs:
           kill $SERVER_PID
 
       - name: Deploy to GitHub Pages (gh-pages branch)
+        if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
