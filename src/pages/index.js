@@ -7,12 +7,12 @@ import bannerUrl from '@site/static/img/cien_banner.png';
 
 export default function Home() {
   return (
-    <Layout title="Cien API">
+    <Layout title="Cien Data API">
       <main className="hero" style={{ padding: '6rem 2rem', position: 'relative' }}>
         <div className="home-hero-content" style={{ textAlign: 'center' }}>
-          <h1 style={{ marginBottom: '0.75rem' }}>Cien API</h1>
+          <h1 style={{ marginBottom: '0.75rem' }}>Cien Data API</h1>
           <p style={{ maxWidth: 900, margin: '0 auto 1.5rem' }}>
-            The Cien API allows developers to access the underlying data from Cien’s TrueAI platform,
+            The Cien Data API allows developers to access the underlying data from Cien’s TrueAI platform,
             built to enable sales and marketing technology applications and analytics in completely new ways.
           </p>
 

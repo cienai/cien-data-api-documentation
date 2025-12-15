@@ -7,7 +7,7 @@ sidebar_label: Queries
 
 ## Overview
 
-Describe how to query Cien API data, including endpoints, parameters, and response shapes. Include authentication notes and rate limits if applicable.
+Describe how to query Cien Data API data, including endpoints, parameters, and response shapes. Include authentication notes and rate limits if applicable.
 
 ## Filtering and Sorting
 

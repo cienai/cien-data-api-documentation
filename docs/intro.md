@@ -2,7 +2,7 @@
 title: Get started
 ---
 
-Welcome to the Cien API documentation. This site helps you discover available data entities and use them in analytics tools.
+Welcome to the Cien Data API documentation. This site helps you discover available data entities and use them in analytics tools.
 
 What you’ll find here:
 

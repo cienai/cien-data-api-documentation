@@ -1,6 +1,6 @@
 const config = {
-  title: 'Cien API',
-  tagline: 'Cien API Documentation',
+  title: 'Cien Data API',
+  tagline: 'Cien Data API Documentation',
   favicon: 'img/favicon.ico',
 
   url: 'https://cienai.github.io',
