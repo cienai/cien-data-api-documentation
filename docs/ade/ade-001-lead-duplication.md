@@ -74,60 +74,13 @@ ORDER BY
 
 In this example, there is relatively little exact duplication of individual leads. However, many leads belong to the same company, indicating consolidation opportunities at the account level rather than true duplicate records.
 
-trueai_group  
-trueai_user_role_level  
-lead_count  
-dupe_records  
-unique_dupe_records  
-dupe_ratio  
-master_records  
-company_dupe_records  
-company_dupe_ratio  
-ND  
-MKT  
-35,657  
-12  
-9  
-0.03%  
-35,648  
-3,306  
-9%  
-ND  
-ND  
-17  
-0  
-0  
-0.00%  
-17  
-3  
-18%  
-Enterprise  
-SALES  
-7  
-0  
-0  
-0.00%  
-7  
-2  
-29%  
-SMB  
-SALES  
-14  
-0  
-0  
-0.00%  
-14  
-4  
-29%  
-ND  
-SALES  
-736  
-0  
-0  
-0.00%  
-736  
-93  
-13%
+| trueai_group | trueai_user_role_level | lead_count | dupe_records | unique_dupe_records | dupe_ratio | master_records | company_dupe_records | company_dupe_ratio |
+| --- | --- | ---:| ---:| ---:| ---:| ---:| ---:| ---:|
+| ND | MKT | 35,657 | 12 | 9 | 0.03% | 35,648 | 3,306 | 9% |
+| ND | ND | 17 | 0 | 0 | 0.00% | 17 | 3 | 18% |
+| Enterprise | SALES | 7 | 0 | 0 | 0.00% | 7 | 2 | 29% |
+| SMB | SALES | 14 | 0 | 0 | 0.00% | 14 | 4 | 29% |
+| ND | SALES | 736 | 0 | 0 | 0.00% | 736 | 93 | 13% |
 
 ## How to Interpret the Results
 
