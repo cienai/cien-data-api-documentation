@@ -48,7 +48,7 @@ module.exports = {
           label: 'Coaching Intelligence (CI)',
           collapsed: false,
           items: [
-            'ci/ci-001',
+            'ci/ci-001-ra',
           ],
         },
       ],
