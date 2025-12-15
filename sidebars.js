@@ -25,6 +25,7 @@ module.exports = {
           collapsed: false,
           items: [
             'ade/ade-001',
+            'ade/ade-002',
           ],
         },
         {
