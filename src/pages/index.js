@@ -11,9 +11,14 @@ export default function Home() {
       <main className="hero" style={{ padding: '6rem 2rem', position: 'relative' }}>
         <div className="home-hero-content" style={{ textAlign: 'center' }}>
           <h1 style={{ marginBottom: '0.75rem' }}>Cien Data API</h1>
-          <p style={{ maxWidth: 900, margin: '0 auto 1.5rem' }}>
+          <p style={{ maxWidth: 900, margin: '0 auto 0.75rem', fontSize: '18px' }}>
             The Cien Data API allows developers to access the underlying data from Cien’s TrueAI platform,
             built to enable sales and marketing technology applications and analytics in completely new ways.
+          </p>
+
+          <p style={{ maxWidth: 900, margin: '0 auto 1.5rem', fontSize: '14px', opacity: 0.95 }}>
+            Use this documentation to explore available data entities, understand how data is enhanced and derived by the platform,
+            and reference example queries that illustrate common analytical patterns.
           </p>
 
           <div style={{ marginTop: '1rem' }}>

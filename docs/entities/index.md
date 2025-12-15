@@ -17,6 +17,8 @@ Each entity should have a short one-line description.
 
 # Entities (Alphabetical Index)
 
+This page provides an index of all entities exposed by the Cien Data API. While the platform contains many entities and fields, most use cases rely on only a subset. Each entity name links to a dedicated page describing its structure, available fields, and intended usage.
+
 - [accounts](/docs/entities/accounts/): CRM account records with standardized and TrueAI-enriched fields.
 - [activities](/docs/entities/activities/): CRM activity records (calls, emails, meetings) captured or inferred.
 - [aliasing](/docs/entities/aliasing/): Metadata for standardized aliasing and value normalization.
