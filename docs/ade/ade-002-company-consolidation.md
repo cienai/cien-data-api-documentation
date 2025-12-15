@@ -2,20 +2,24 @@
 id: ade-002
 title: Company Consolidation
 version: v1.0
-category: "Analytics & Data Examples"
-sidebar_label: ade-002
+category: Automatic Data Enhancement
 ---
 
 ## Description
 
 ### Purpose of Analysis
 
-Lead records often represent interactions tied to the same company. Even when exact lead duplication is low, multiple leads may cluster around a single account, indicating consolidation opportunities for prospecting and reporting.
+In many datasets, multiple leads or accounts may represent the same underlying company. These records often differ due to spelling variations, incomplete enrichment, multiple data sources, or independent prospecting efforts by different reps.
 
-TrueAI provides signals to identify company-level relationships so that teams can operate on a consolidated company context. This analysis highlights where consolidation can reduce fragmentation and improve account-level insights.
+Without consolidation, company-level analysis becomes fragmented, leading to:
+- inflated account counts,
+- duplicated pipeline attribution,
+- and misleading performance metrics.
+
+The TrueAI platform applies company-level matching logic to identify related records and enable consolidation across leads and accounts.
 
 **This analysis answers:**  
-Which teams and roles generate leads that cluster around the same company, and what is the magnitude of those clusters?
+Which records belong to the same underlying company, and how does company-level consolidation change analytical results?
 
 ---
 
@@ -23,52 +27,57 @@ Which teams and roles generate leads that cluster around the same company, and w
 
 ### Query Intent
 
-This query groups leads by team/role and measures the extent to which those leads map to the same company using company-level identifiers. It computes ratios showing how much activity concentrates on shared accounts.
+This query compares raw record counts with company-level consolidated counts. It highlights how many individual records map to the same company identifier and how consolidation reduces fragmentation in downstream reporting.
+
+The query is intended to make the impact of company consolidation explicit and measurable.
 
 ```sql
 SELECT
-  -- Grouping dimensions (who is creating the leads)
-  u.trueai_group,
-  u.trueai_user_role_dept,
+  trueai_company_dupe_id AS company_id,
 
-  -- Volume metrics
-  COUNT(*) AS lead_count,
+  COUNT(*) AS raw_record_count,
+  COUNT(DISTINCT trueai_lead_id) AS distinct_leads,
+  COUNT(DISTINCT trueai_account_id) AS distinct_accounts,
 
-  -- Company-level consolidation metrics
-  COUNT(l.trueai_company_dupe_id) AS company_dupe_records,
-  COUNT(DISTINCT l.trueai_company_dupe_id) AS unique_company_ids,
-  COUNT(l.trueai_company_dupe_id) / CAST(COUNT(*) AS float) AS company_dupe_ratio,
+  COUNT(*) - 1 AS consolidation_savings
 
-  -- Optional: hat_leads usage (logical, consolidated leads)
-  COUNT(DISTINCT hl._sys_doc_id) AS hat_lead_count
+FROM leads
 
-FROM leads AS l
-LEFT JOIN users AS u
-  ON l.trueai_creator_id = u._sys_doc_id
-LEFT JOIN hat_leads AS hl
-  ON l.trueai_company_dupe_id = hl.trueai_company_dupe_id
+WHERE trueai_company_dupe_id IS NOT NULL
 
 GROUP BY
-  u.trueai_group,
-  u.trueai_user_role_dept
+  trueai_company_dupe_id
 
 ORDER BY
-  company_dupe_records DESC;
+  raw_record_count DESC;
 ```
 
 ### Sample Output
 
-| trueai_group | trueai_user_role_dept | lead_count | company_dupe_records | unique_company_ids | company_dupe_ratio | hat_lead_count |
-| --- | --- | ---:| ---:| ---:| ---:| ---:|
-| ND | MKT | 35,657 | 3,306 | 1,842 | 9% | 1,212 |
-| ND | ND | 17 | 3 | 2 | 18% | 2 |
-| Enterprise | SALES | 7 | 2 | 2 | 29% | 1 |
-| SMB | SALES | 14 | 4 | 3 | 29% | 3 |
-| ND | SALES | 736 | 93 | 65 | 13% | 58 |
+In this example, several companies are represented by multiple lead and account records. Consolidation significantly reduces the number of logical companies that need to be analyzed or managed.
+
+| company_id | raw_record_count | distinct_leads | distinct_accounts | consolidation_savings |
+| --- | ---:| ---:| ---:| ---:|
+| C-10293 | 18 | 14 | 4 | 17 |
+| C-84721 | 11 | 9 | 2 | 10 |
+| C-55210 | 7 | 6 | 1 | 6 |
+| C-33901 | 5 | 5 | 0 | 4 |
+| C-99817 | 4 | 3 | 1 | 3 |
 
 ## How to Interpret the Results
 
-- `company_dupe_ratio` quantifies consolidation opportunities at the company level (shared account context)
-- High `company_dupe_records` with relatively low `unique_company_ids` indicates clustering around fewer companies
-- `hat_lead_count` suggests the presence of consolidated logical lead entities suitable for analysis and reporting
-- Teams with high clustering benefit from company-level strategies (account-based marketing, consolidated outreach)
+- `raw_record_count` shows how many individual records reference the same company
+- `distinct_leads` and `distinct_accounts` show how fragmentation occurs across entity types
+- `consolidation_savings` represents the reduction in records after company-level consolidation
+- High consolidation savings indicate strong candidates for company-centric analysis and reporting
+
+---
+
+## Why This Matters
+
+Company-level consolidation:
+- simplifies account-based reporting,
+- prevents over-counting in pipeline and revenue analysis,
+- and enables more accurate attribution of sales and marketing activity.
+
+This analysis provides transparency into how consolidation logic changes the shape of the data before it is used in downstream analytics.
