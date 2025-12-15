@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">Examples &amp; Queries | Cien Data API</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://cienai.github.io/cien-api-documentation/docs/examples"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Examples &amp; Queries | Cien Data API"><meta data-rh="true" name="description" content="API EXAMPLES"><meta data-rh="true" property="og:description" content="API EXAMPLES"><link data-rh="true" rel="icon" href="/cien-api-documentation/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://cienai.github.io/cien-api-documentation/docs/examples"><link data-rh="true" rel="alternate" href="https://cienai.github.io/cien-api-documentation/docs/examples" hreflang="en"><link data-rh="true" rel="alternate" href="https://cienai.github.io/cien-api-documentation/docs/examples" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Examples & queries","item":"https://cienai.github.io/cien-api-documentation/docs/examples"}]}</script><link rel="stylesheet" href="/cien-api-documentation/assets/css/styles.222b0982.css">
-<script src="/cien-api-documentation/assets/js/runtime~main.637599d2.js" defer="defer"></script>
+<script src="/cien-api-documentation/assets/js/runtime~main.65521baf.js" defer="defer"></script>
 <script src="/cien-api-documentation/assets/js/main.56fedf4c.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -464,88 +464,48 @@ GROUP BY Y.year -- group by year</p>
 <p>LIMIT 5; -- most recent data</p>
 <hr>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-7">Sample Result<a href="#sample-result-7" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
-<p>In this case, account churn was not a problem during 2018-2020, but doubled in 2021, resulting in a new decrease of active
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="in-this-case-account-churn-was-not-a-problem-during-2018-2020-but-doubled-in-2021-resulting-in-a-new-decrease-of-activecustomers-that-yearyear-boy_customers-new_customers-churned_customers-net_new_customers-eoy_customers2021-1396-111-175--64-12712020-1273-127-87-40-13962019-1115-150-60-90-12732018-708-199-36-163-1115">In this case, account churn was not a problem during 2018-2020, but doubled in 2021, resulting in a new decrease of active
 customers that year.
 year boy_customers new_customers churned_customers net_new_customers eoy_customers
 2021 1,396 111 175 -64 1,271
 2020 1,273 127 87 40 1,396
 2019 1,115 150 60 90 1,273
-2018 708 199 36 163 1,115
-2017 421 143 13 130 708
-^ Top
-DI #3: Pipeline Creation by Sale Type &amp; Quality (V.1.2)</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-8">Purpose of Analysis<a href="#purpose-of-analysis-8" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
-<p>When surveying senior sales executives about their priorities, creating a bigger and better pipeline is almost always among
-their top 3 objectives. However, it is important to measure pipeline not just in deals and pipeline amount, but also in
-quality. It is often easy for reps to create low-quality pipeline by simply entering deals that they hope will close, doing so
-without performing the required quali fi cation steps. Cien detects this automatically.
-Common Challenges and How to Accomplish with the Cien API
-As in other deal analysis, pipeline analysis needs to be segmented between existing and new logo business, since the win
-rates tend to be quite di ff erent. You should also predict the probability of a win for each deal based on the attributes of the
-account and what has occurred until now (e.g., the level of engagement during initial discovery). This is extremely hard to
-do using raw CRM data, since you often don’t have access to clean outcomes and enough training data to build a reliable
-prediction model. Cien’s Deal Intelligence uses AI models trained on millions of records - fi ne-tuned on your speci fi c data -
-to predict those outcomes. Please see the ADE prediction accuracy example above for how to inspect the quality of deal
-predictions over time of your data.
-As with most deal analysis, we use the ssr_history entity instead of the CRM opps table, but here we are looking at the
-Prospecting (for new logo selling) and Post-Sale Support (for upselling) steps by fi ltering by step_name .</p>
-<hr>
-<p>Example SQL</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-6">SELECT<a href="#select-6" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
-<p>CAST(date_part(&#x27;year&#x27;, SH._sys_filt_end_date) as VARCHAR) || &#x27;-0&#x27; ||
-CAST(date_part(&#x27;quarter&#x27;,SH._sys_filt_end_date) as VARCHAR) as year_qtr, -- create a quarter value
-SUM(SH.opp_pipeline_amt) as total_pipeline_created, -- the pipeline created in the quarter
-AVG(SH.step_next_success_prob) as predicted_opp_win_rate, -- the avg. predicted win rate of that
-pipeline (pipe line quality)
-SUM(SH.step_next_success_prob * SH.opp_pipeline_amt) as predicted_opp_win_amount, -- predicted win rate
-times amount is the expected won amount resulting from this pipeline
-SUM(CASE WHEN SH.step_name = &#x27;Prospecting&#x27; THEN SH.opp_pipeline_amt END) as new_logo_pipeline, -- just
-new logo pipeline
-AVG(CASE WHEN SH.step_name = &#x27;Prospecting&#x27; THEN SH.step_next_success_prob END) as
-new_logo_predicted_opp_win_rate, -- the avg. predicted win rate for new logo only</p>
+2018 708 199 36 163 1,115<a href="#in-this-case-account-churn-was-not-a-problem-during-2018-2020-but-doubled-in-2021-resulting-in-a-new-decrease-of-activecustomers-that-yearyear-boy_customers-new_customers-churned_customers-net_new_customers-eoy_customers2021-1396-111-175--64-12712020-1273-127-87-40-13962019-1115-150-60-90-12732018-708-199-36-163-1115" class="hash-link" aria-label="Direct link to In this case, account churn was not a problem during 2018-2020, but doubled in 2021, resulting in a new decrease of active
+customers that year.
+year boy_customers new_customers churned_customers net_new_customers eoy_customers
+2021 1,396 111 175 -64 1,271
+2020 1,273 127 87 40 1,396
+2019 1,115 150 60 90 1,273
+2018 708 199 36 163 1,115" title="Direct link to In this case, account churn was not a problem during 2018-2020, but doubled in 2021, resulting in a new decrease of active
+customers that year.
+year boy_customers new_customers churned_customers net_new_customers eoy_customers
+2021 1,396 111 175 -64 1,271
+2020 1,273 127 87 40 1,396
+2019 1,115 150 60 90 1,273
+2018 708 199 36 163 1,115" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="title-examples--queriessidebar_label-examples--queries">title: Examples &amp; Queries
+sidebar_label: Examples &amp; queries<a href="#title-examples--queriessidebar_label-examples--queries" class="hash-link" aria-label="Direct link to title: Examples &amp; Queries
+sidebar_label: Examples &amp; queries" title="Direct link to title: Examples &amp; Queries
+sidebar_label: Examples &amp; queries" translate="no">​</a></h2>
+<p>Welcome. Browse example categories below; each contains specific, copy‑ready queries and analyses.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="automatic-data-enhancement-ade-1">Automatic Data Enhancement (ADE)<a href="#automatic-data-enhancement-ade-1" class="hash-link" aria-label="Direct link to Automatic Data Enhancement (ADE)" title="Direct link to Automatic Data Enhancement (ADE)" translate="no">​</a></h2>
+<p><em>Transparency on the Data Cleanup Process</em></p>
+<p>Before you start using the new derived entities it makes sense to understand the quality of the underlying data, and how it has been enhanced by the TrueAI platform. The following examples illustrate some of the ways in how this can be done.</p>
 <ul>
-<li class="">-SUM(CASE WHEN SH.step_name = &#x27;Prospecting&#x27; THEN SH.step_next_success_prob * SH.opp_pipeline_amt END )
-as _predicted_opp_win_amount, -- win rate times amount for new logo pipeline
-SUM(CASE WHEN SH.step_name = &#x27;Post Sales Support&#x27; THEN SH.opp_pipeline_amt END) as upselling_pipeline,</li>
-<li class="">
-<ul>
-<li class="">just upselling pipeline
-AVG(CASE WHEN SH.step_name = &#x27;Post Sales Support&#x27; THEN SH.step_next_success_prob END) as
-upselling_predicted_opp_win_rate -- the avg. predicted win rate for upselling only</li>
-</ul>
-</li>
-<li class="">-SUM(CASE WHEN SH.step_name = &#x27;Post Sales Support&#x27; THEN SH.step_next_success_prob * SH.opp_pipeline_amt
-END ) as upselling_predicted_opp_win_amount -- win rate times amount for upselling pipeline
-FROM ssr AS S
-INNER JOIN ssr_history AS SH
-ON S._sys_doc_id = SH._sys_ssr_id
-WHERE date_part(&#x27;year&#x27;, SH._sys_filt_end_date) &gt;= date_part(&#x27;year&#x27;, SH._sys_asof) -2 AND
-date_part(&#x27;year&#x27;, SH._sys_filt_end_date) &lt; date_part(&#x27;year&#x27;, SH._sys_asof) -- look at the last 2 full
-years
-AND (S.trueai_account_is_master = &#x27;true&#x27; OR S.trueai_account_is_master is Null)
-AND SH.step_name in (&#x27;Prospecting&#x27;, &#x27;Post Sales Support&#x27;) -- we&#x27;re only interested in the steps where
-pipeline is created
-AND SH.step_success = &#x27;true&#x27; -- we&#x27;re only interested in successfully completed steps, since we want to
-determine what will happen in the next step (selling)
-GROUP BY date_part(&#x27;year&#x27;, SH._sys_filt_end_date), date_part(&#x27;quarter&#x27;, SH._sys_filt_end_date) -- group
-by quarter
-ORDER BY 1 DESC; -- order by year and quarter most recent</li>
+<li class="">ade-001: <a class="" href="/cien-api-documentation/docs/ade/ade-001">Lead Duplication</a></li>
 </ul>
 <hr>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-8">Sample Result<a href="#sample-result-8" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
-<p>In this case, pipeline quantity has increased while pipeline quality has remained fairly steady. This is a good outcome, since
-it is easy to sacri fi ce proper quali fi cation when trying to create a bigger pipeline. Worth noting, as in most companies, the
-probability of a win from an upselling opp is signi fi cantly higher (here almost 3X).
-year_qtr total_pipeline_created predicted_opp_win
-<em>rate
-predicted_opp_win</em>
-amount
-new_logo_pipeline new_logo_predicted_
-opp_win_rate
-upselling_pipeline upselling_predicted_
-opp_win_rate
-2021-04 $193,082,451 44% $93,300,578 $29,523,197 18% $163,559,255 53%
-2021-03 $169,548,637 42% $67,557,600 $29,996,527 22% $139,552,111 50%
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="deal-intelligence-di">Deal Intelligence (DI)<a href="#deal-intelligence-di" class="hash-link" aria-label="Direct link to Deal Intelligence (DI)" title="Direct link to Deal Intelligence (DI)" translate="no">​</a></h2>
+<p><em>Revenue &amp; Buyer Journey Insights</em></p>
+<p>Being able to isolate specific steps in the sales process, and understand the customer factors affecting outcomes is key to improving outcomes. The TrueAI platform makes that possible with the <code>ssr</code> and <code>ssr_history</code> entities.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="value-intelligence-vi">Value Intelligence (VI)<a href="#value-intelligence-vi" class="hash-link" aria-label="Direct link to Value Intelligence (VI)" title="Direct link to Value Intelligence (VI)" translate="no">​</a></h2>
+<p><em>Fairness &amp; Value Creation in the GTM Org</em></p>
+<p>If you want to understand rep performance, you must look at what value each rep received, as new leads, existing accounts, or new opportunities from an SDR team. Once you do, you will often find that top performance is correlated with having access to high potential accounts and a great pipeline, created by other reps.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="coaching-intelligence-ci">Coaching Intelligence (CI)<a href="#coaching-intelligence-ci" class="hash-link" aria-label="Direct link to Coaching Intelligence (CI)" title="Direct link to Coaching Intelligence (CI)" translate="no">​</a></h2>
+<p><em>Rep Skills &amp; Behavior Analysis</em></p>
+<p>Every GTM organization wants to develop their reps, but if you don’t understand their current behavior and skills, it is hard to provide meaningful individualized coaching, and next to impossible to evaluate the effectiveness of different training, available tools, etc. Cien changes that. Now, previously unavailable data points are at your fingertips.
 2021-02 $125,370,416 44% $59,061,419 $23,573,003 19% $101,797,413 52%
 2021-01 $223,850,916 45% $116,651,892 $17,898,678 19% $205,952,238 54%
 2020-04 $204,615,052 48% $117,202,623 $20,250,146 19% $184,364,906 57%
@@ -554,7 +514,7 @@ opp_win_rate
 2020-01 $115,796,755 47% $57,469,296 $14,458,985 19% $101,337,770 55%
 ^ Top
 DI #4: Pipeline Analysis by Creator Group &amp; Role (V.1.2)</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-9">Purpose of Analysis<a href="#purpose-of-analysis-9" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-8">Purpose of Analysis<a href="#purpose-of-analysis-8" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
 <p>While creating pipeline is top-of-mind for GTM leadership, there are often doubts whether speci fi c groups and/or roles are
 contributing to the overall success of the sales team.
 Common Challenges and How to Accomplish with the Cien API
@@ -569,7 +529,7 @@ step_success_prob predicts the probability of success in the current step. I.e.,
 conversion into an opportunity.</p>
 <hr>
 <p>Example SQL</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-7">SELECT<a href="#select-7" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-6">SELECT<a href="#select-6" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
 <p>U.trueai_group, -- the sales group
 SUM(SH.opp_pipeline_amt) as total_pipeline_created, -- the pipeline created during the period
 AVG(SH.step_next_success_prob) as predicted_opp_win_rate, -- the avg. predicted win rate of that
@@ -598,7 +558,7 @@ AND U.trueai_user_role_function in (&#x27;SDR&#x27;,&#x27;AE&#x27;) -- let&#x27;
 GROUP BY U.trueai_group -- group by the sales team
 ORDER BY 1; -- order by group</p>
 <hr>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-9">Sample Result<a href="#sample-result-9" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-8">Sample Result<a href="#sample-result-8" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
 <p>In this case, pipeline quality varies across groups with the LATAM group struggling to create high-quality new logo pipeline.
 Worth noting is that the SDR generated pipeline is signi fi cantly worse than the AE pipeline for the Enterprise group.
 trueai_group total_pipeline_created predicted_opp_
@@ -613,7 +573,7 @@ Enterprise $18,275,038 18% $4,795,024 $ 3,964,363 27% $14,310,675 17%
 Mid Market $18,932,554 21% $3,734,812 $14,747,436 22% $4,185,118 17%
 ^ Top
 DI #5: Win/Loss Analysis of New Logo Sales (V.1.2)</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-10">Purpose of Analysis<a href="#purpose-of-analysis-10" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-9">Purpose of Analysis<a href="#purpose-of-analysis-9" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
 <p>Everyone wants to understand the secret to winning deals. There are tons of “best practices” out there, but what is really
 interesting is what factors have made reps win deals in your GTM organization. Here is a simple analysis that highlights
 what tends to be the factors with the biggest impact.
@@ -632,7 +592,7 @@ step_outcome fi eld. For simplicity, this analysis does not include stakeholder 
 seniority a contact has) – this information can sometimes have a big impact as well and is also available in the same entity.</p>
 <hr>
 <p>Example SQL</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-8">SELECT<a href="#select-8" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-7">SELECT<a href="#select-7" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
 <p>SH.step_outcome, -- outcome, in this case won or lost
 AVG(SH.step_success_prob) as avg_success_prediction, -- what was the avg prediction for each outcome
 COUNT(SH._sys_doc_id) AS deal_count, -- count of deals
@@ -653,7 +613,7 @@ AND SH.step_outcome IS NOT NULL -- exclude deals that are not yet closed
 GROUP by SH.step_outcome -- group by outcome - in this case won or lost
 ORDER BY 1 DESC; -- sort by outcome</p>
 <hr>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-10">Sample Result<a href="#sample-result-10" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-9">Sample Result<a href="#sample-result-9" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
 <p>In this case, the analysis shows a very common pattern, that more engagement results in a won deal (i.e., the customer is
 not going “radio-silent”, and not responding to the rep’s outreach). Factors such as number of buyer contacts involved does
 not seem to have any impact on outcome. Won deals are wrapped up in around 4 months, but deals that end up being
@@ -667,7 +627,7 @@ Closed Won 27% 206 111 148 98 66% 3.5
 Closed Lost 13% 2,036 410 42 16 39% 3.5
 ^ Top
 DI #6: Revenue Concentration Analysis (V.1.2)</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-11">Purpose of Analysis<a href="#purpose-of-analysis-11" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-10">Purpose of Analysis<a href="#purpose-of-analysis-10" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
 <p>Having too much revenue concentrated in a few large clients poses a great risk for a GTM organization. At the same time,
 many revenue leaders cite the Pareto principle (80% of your revenue comes from 20% of your clients) as almost inevitable.
 Common Challenges and How to Accomplish with the Cien API
@@ -678,7 +638,7 @@ keywords in SQL, it is possible to get the number of the largest account that re
 compare that to the total number of accounts that bought in the year.</p>
 <hr>
 <p>Example SQL</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-9">SELECT<a href="#select-9" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-8">SELECT<a href="#select-8" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
 <p>date_part(&#x27;year&#x27;, _sys_filt_end_date) as year, -- get the year
 SUM(opp_won_amt) as sum_sales, -- get the sum of sales
 COUNT(DISTINCT _sys_ssr_id) as customer_count, -- get # of buying customers
@@ -720,7 +680,7 @@ GROUP BY date_part(&#x27;year&#x27;, SH._sys_filt_end_date), SH._sys_ssr_id -- g
 GROUP BY date_part(&#x27;year&#x27;, _sys_filt_end_date)
 ORDER BY date_part(&#x27;year&#x27;, _sys_filt_end_date) DESC;</p>
 <hr>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-11">Sample Result<a href="#sample-result-11" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-10">Sample Result<a href="#sample-result-10" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
 <p>In this case, the revenue concentration has increased over the last 5 years, despite much higher revenue. This is due to
 the largest clients now being 10X bigger than 5 years ago; a great accomplishment of course, but it does also increase the
 revenue risk.
@@ -740,7 +700,7 @@ new opportunities from an SDR team. Once you do, you will often fi nd that top p
 high potential accounts and a great pipeline, created by other reps.
 VI #1: Lead Generation by Quarter broken down by Creator Dept and Quality
 VI #1: Lead Generation by Quarter broken down by Creator Dept and Quality (V.1.2)</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-12">Purpose of Analysis<a href="#purpose-of-analysis-12" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-11">Purpose of Analysis<a href="#purpose-of-analysis-11" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
 <p>To build new logo pipeline, you need to generate good new leads (or accounts if you use an Account Based approach). Those
 can be either inbound or outbound leads in di ff erent industries and locations. The reps should then follow up and attempt to
 convert those leads into opportunities (some companies call this Sales Quali fi ed Leads – SQL).
@@ -790,7 +750,7 @@ GROUP BY date_part(&#x27;year&#x27;, HL._sys_filt_start_date), date_part(&#x27;q
 by year and quarter
 ORDER BY 1 DESC; -- most recent first</p>
 <hr>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-12">Sample Result<a href="#sample-result-12" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-11">Sample Result<a href="#sample-result-11" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
 <p>In this case, the absolute number of leads generated per quarter has remained fairly steady. Around 25% of those are actively
 prospected by the sales team. The team is picking leads that are more likely to be converted. Around 5% of the leads are
 generated by the sales team themselves. The value created follows the multiplication of the expected probability of conversion
@@ -827,7 +787,7 @@ CI #1: Rep Hiring &amp; Termination Analysis
 CI #2: Time to Lead</p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="ci-3-quarterly-rep-performance-analysis">CI #3: Quarterly Rep Performance Analysis<a href="#ci-3-quarterly-rep-performance-analysis" class="hash-link" aria-label="Direct link to CI #3: Quarterly Rep Performance Analysis" title="Direct link to CI #3: Quarterly Rep Performance Analysis" translate="no">​</a></h2>
 <p>CI #1: Rep Hiring &amp; Termination Analysis (V.1.2)</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-13">Purpose of Analysis<a href="#purpose-of-analysis-13" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-12">Purpose of Analysis<a href="#purpose-of-analysis-12" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
 <p>Just like you need to understand gained and lost accounts, you need to understand how the size of the sales team has
 changed over time and the makeup of the roles of the team.
 Common Challenges and How to Accomplish with the Cien API
@@ -846,7 +806,7 @@ The key fi elds are the trueai_user_role (a set of 15 speci fi c CRM user roles)
 multiple signals that a user is terminated – e.g. no logins or no activities in addition to the active fl ag).</p>
 <hr>
 <p>Example SQL</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-10">SELECT<a href="#select-10" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-9">SELECT<a href="#select-9" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
 <p>Y.year as year, -- the year
 COUNT(DISTINCT CASE WHEN date_part(&#x27;year&#x27;, U.trueai_hire_date) &lt; Y.year AND date_part(&#x27;year&#x27;,
 COALESCE(U.trueai_termination_date, make_date(2100, 1,1))) &gt;= Y.Year THEN U._sys_doc_id END) as
@@ -896,7 +856,7 @@ WHERE U.trueai_user_role_dept = &#x27;SALES&#x27; -- only the sales users
 GROUP BY Y.year -- group by year
 ORDER BY 1 DESC; -- most recent data</p>
 <hr>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-13">Sample Result<a href="#sample-result-13" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-12">Sample Result<a href="#sample-result-12" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
 <p>In this case, the team has grown consistently for the last 5 years, with the biggest increase in account management,
 re fl ecting the larger # of supported accounts. Rep to manager ratio (including supporting roles like Sales Engineers) has
 decreased to 4.7 from around 3.5 a few years ago.
@@ -927,7 +887,7 @@ eoy
 2017 766 459 -230 995 249 175 78 295 198 3.5
 ^ Top
 CI #2: Time to Lead (V.1.2)</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-14">Purpose of Analysis<a href="#purpose-of-analysis-14" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="purpose-of-analysis-13">Purpose of Analysis<a href="#purpose-of-analysis-13" class="hash-link" aria-label="Direct link to Purpose of Analysis" title="Direct link to Purpose of Analysis" translate="no">​</a></h2>
 <p>It is well known that there is a bene fi t to responding quickly to inbound leads. However, there may be doubts about how
 critical response time is in a speci fi c organization and how good the reps are on average to respond to inbound leads. This
 analysis makes it easy to answer those questions.
@@ -940,7 +900,7 @@ trueai_leadsource_is_inbound fi eld. And lastly, you need to look at activity an
 when a lead was actually touched. The trueai_first_touch fi eld gives you that information.</p>
 <hr>
 <p>Example SQL</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-11">SELECT<a href="#select-11" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="select-10">SELECT<a href="#select-10" class="hash-link" aria-label="Direct link to SELECT" title="Direct link to SELECT" translate="no">​</a></h2>
 <p>CASE WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) &gt; 7 THEN &#x27;Over a week&#x27;
 WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) &gt; 3 THEN &#x27;Over three days&#x27;
 WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) &gt; 1 THEN &#x27;Over one day&#x27;
@@ -969,7 +929,7 @@ WHEN CAST( HL.trueai_first_touch - HL.trueai_createdon as float) * 24 &gt; 1 THE
 ELSE &#x27;Within Minutes&#x27; END -- great a derived category field and group by it
 ORDER BY avg_hours DESC; -- sort by slowest response first</p>
 <hr>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-14">Sample Result<a href="#sample-result-14" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="sample-result-13">Sample Result<a href="#sample-result-13" class="hash-link" aria-label="Direct link to Sample Result" title="Direct link to Sample Result" translate="no">​</a></h2>
 <p>There is a dramatic di ff erence in outcome between responding immediately and later. The pred_conversion_rate
 allows you to understand if the reps are already selecting the best leads for fast follow up (that is the case here). In general,
 this sales organization is fairly good at responding quickly to leads.
@@ -980,6 +940,13 @@ Over one day 47.8 43 21% 11 26%
 Over 6 hours 17.1 45 17% 6 13%
 Over 1 hour 2.6 85 18% 12 14%
 Within Minutes 0.1 840 23% 215 26%
-^ Top</p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/cien-api-documentation/docs/intro"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Get started</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/cien-api-documentation/docs/ade/ade-001"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">ade-001</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#api-examples" class="table-of-contents__link toc-highlight">API EXAMPLES</a></li><li><a href="#automatic-data-enhancement-ade" class="table-of-contents__link toc-highlight">Automatic Data Enhancement (ADE)</a></li><li><a href="#transparency-on-the-data-cleanup-process" class="table-of-contents__link toc-highlight">Transparency on the Data Cleanup Process</a></li><li><a href="#purpose-of-analysis" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-1" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-1" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#from" class="table-of-contents__link toc-highlight">FROM</a></li><li><a href="#union" class="table-of-contents__link toc-highlight">UNION</a></li><li><a href="#sample-result-1" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-2" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#where" class="table-of-contents__link toc-highlight">WHERE</a></li><li><a href="#sample-result-2" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#paid-social-447-digital-ads-099999" class="table-of-contents__link toc-highlight">Paid Social 447 Digital Ads 0.99999</a><ul><li><a href="#sales-generated-172-rep-lead-gen-100000" class="table-of-contents__link toc-highlight">Sales Generated 172 Rep Lead Gen 1.00000</a></li></ul></li><li><a href="#purpose-of-analysis-3" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-2" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-3" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-4" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-3" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-4" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-5" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-4" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-5" class="table-of-contents__link toc-highlight">Sample Result</a><ul><li><a href="#deal-intelligence-di---revenue--buyer-journey-insights" class="table-of-contents__link toc-highlight">Deal Intelligence (DI) - Revenue &amp; Buyer Journey Insights</a></li></ul></li><li><a href="#purpose-of-analysis-6" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-5" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-6" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-7" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#order-by-1-desc" class="table-of-contents__link toc-highlight">ORDER BY 1 DESC</a></li><li><a href="#sample-result-7" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-8" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-6" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-8" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-9" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-7" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-9" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-10" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-8" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-10" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-11" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-9" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-11" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-12" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#sample-result-12" class="table-of-contents__link toc-highlight">Sample Result</a><ul><li><a href="#coaching-intelligence-ci---rep-skills--behavior-analysis" class="table-of-contents__link toc-highlight">Coaching Intelligence (CI) - Rep Skills &amp; Behavior Analysis</a></li></ul></li><li><a href="#ci-3-quarterly-rep-performance-analysis" class="table-of-contents__link toc-highlight">CI #3: Quarterly Rep Performance Analysis</a></li><li><a href="#purpose-of-analysis-13" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-10" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-13" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-14" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-11" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#group-by" class="table-of-contents__link toc-highlight">GROUP BY</a></li><li><a href="#sample-result-14" class="table-of-contents__link toc-highlight">Sample Result</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Legal &amp; InfoSec</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://trustcenter.cien.ai/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Trust Center<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/data-security" target="_blank" rel="noopener noreferrer" class="footer__link-item">Data Security<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/privacy/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Privacy Policy<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/tos" target="_blank" rel="noopener noreferrer" class="footer__link-item">Terms of Services<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Technology</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.cien.ai/product" target="_blank" rel="noopener noreferrer" class="footer__link-item">Product<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/cienai/IntegrationHub" target="_blank" rel="noopener noreferrer" class="footer__link-item">Github Integration Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/cienai/IntegrationHub/releases" target="_blank" rel="noopener noreferrer" class="footer__link-item">Release Log<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Resources</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.cien.ai/resources" target="_blank" rel="noopener noreferrer" class="footer__link-item">Resource Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/videos" target="_blank" rel="noopener noreferrer" class="footer__link-item">Videos<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/category/blog/expert-advice/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Expert Advice<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/cien-webinars/" target="_blank" rel="noopener noreferrer" class="footer__link-item">GTM Suite Webinars<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Cien.ai</div><ul class="footer__items clean-list"><li class="footer__item"><a href="http://cien.ai/contact" target="_blank" rel="noopener noreferrer" class="footer__link-item">Contact<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Cien, Inc. © 2026. All Rights Reserved.</div></div></div></footer></div>
+^ Top</p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/cien-api-documentation/docs/intro"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Get started</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/cien-api-documentation/docs/ade/ade-001"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">ade-001</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#api-examples" class="table-of-contents__link toc-highlight">API EXAMPLES</a></li><li><a href="#automatic-data-enhancement-ade" class="table-of-contents__link toc-highlight">Automatic Data Enhancement (ADE)</a></li><li><a href="#transparency-on-the-data-cleanup-process" class="table-of-contents__link toc-highlight">Transparency on the Data Cleanup Process</a></li><li><a href="#purpose-of-analysis" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-1" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-1" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#from" class="table-of-contents__link toc-highlight">FROM</a></li><li><a href="#union" class="table-of-contents__link toc-highlight">UNION</a></li><li><a href="#sample-result-1" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-2" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#where" class="table-of-contents__link toc-highlight">WHERE</a></li><li><a href="#sample-result-2" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#paid-social-447-digital-ads-099999" class="table-of-contents__link toc-highlight">Paid Social 447 Digital Ads 0.99999</a><ul><li><a href="#sales-generated-172-rep-lead-gen-100000" class="table-of-contents__link toc-highlight">Sales Generated 172 Rep Lead Gen 1.00000</a></li></ul></li><li><a href="#purpose-of-analysis-3" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-2" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-3" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-4" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-3" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-4" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-5" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-4" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-5" class="table-of-contents__link toc-highlight">Sample Result</a><ul><li><a href="#deal-intelligence-di---revenue--buyer-journey-insights" class="table-of-contents__link toc-highlight">Deal Intelligence (DI) - Revenue &amp; Buyer Journey Insights</a></li></ul></li><li><a href="#purpose-of-analysis-6" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-5" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-6" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-7" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#order-by-1-desc" class="table-of-contents__link toc-highlight">ORDER BY 1 DESC</a></li><li><a href="#sample-result-7" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#in-this-case-account-churn-was-not-a-problem-during-2018-2020-but-doubled-in-2021-resulting-in-a-new-decrease-of-activecustomers-that-yearyear-boy_customers-new_customers-churned_customers-net_new_customers-eoy_customers2021-1396-111-175--64-12712020-1273-127-87-40-13962019-1115-150-60-90-12732018-708-199-36-163-1115" class="table-of-contents__link toc-highlight">In this case, account churn was not a problem during 2018-2020, but doubled in 2021, resulting in a new decrease of active
+customers that year.
+year boy_customers new_customers churned_customers net_new_customers eoy_customers
+2021 1,396 111 175 -64 1,271
+2020 1,273 127 87 40 1,396
+2019 1,115 150 60 90 1,273
+2018 708 199 36 163 1,115</a></li><li><a href="#title-examples--queriessidebar_label-examples--queries" class="table-of-contents__link toc-highlight">title: Examples &amp; Queries
+sidebar_label: Examples &amp; queries</a></li><li><a href="#automatic-data-enhancement-ade-1" class="table-of-contents__link toc-highlight">Automatic Data Enhancement (ADE)</a></li><li><a href="#deal-intelligence-di" class="table-of-contents__link toc-highlight">Deal Intelligence (DI)</a></li><li><a href="#value-intelligence-vi" class="table-of-contents__link toc-highlight">Value Intelligence (VI)</a></li><li><a href="#coaching-intelligence-ci" class="table-of-contents__link toc-highlight">Coaching Intelligence (CI)</a></li><li><a href="#purpose-of-analysis-8" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-6" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-8" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-9" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-7" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-9" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-10" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-8" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-10" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-11" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#sample-result-11" class="table-of-contents__link toc-highlight">Sample Result</a><ul><li><a href="#coaching-intelligence-ci---rep-skills--behavior-analysis" class="table-of-contents__link toc-highlight">Coaching Intelligence (CI) - Rep Skills &amp; Behavior Analysis</a></li></ul></li><li><a href="#ci-3-quarterly-rep-performance-analysis" class="table-of-contents__link toc-highlight">CI #3: Quarterly Rep Performance Analysis</a></li><li><a href="#purpose-of-analysis-12" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-9" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#sample-result-12" class="table-of-contents__link toc-highlight">Sample Result</a></li><li><a href="#purpose-of-analysis-13" class="table-of-contents__link toc-highlight">Purpose of Analysis</a></li><li><a href="#select-10" class="table-of-contents__link toc-highlight">SELECT</a></li><li><a href="#group-by" class="table-of-contents__link toc-highlight">GROUP BY</a></li><li><a href="#sample-result-13" class="table-of-contents__link toc-highlight">Sample Result</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Legal &amp; InfoSec</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://trustcenter.cien.ai/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Trust Center<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/data-security" target="_blank" rel="noopener noreferrer" class="footer__link-item">Data Security<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/privacy/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Privacy Policy<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/tos" target="_blank" rel="noopener noreferrer" class="footer__link-item">Terms of Services<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Technology</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.cien.ai/product" target="_blank" rel="noopener noreferrer" class="footer__link-item">Product<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/cienai/IntegrationHub" target="_blank" rel="noopener noreferrer" class="footer__link-item">Github Integration Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/cienai/IntegrationHub/releases" target="_blank" rel="noopener noreferrer" class="footer__link-item">Release Log<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Resources</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.cien.ai/resources" target="_blank" rel="noopener noreferrer" class="footer__link-item">Resource Hub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/videos" target="_blank" rel="noopener noreferrer" class="footer__link-item">Videos<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/category/blog/expert-advice/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Expert Advice<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://www.cien.ai/cien-webinars/" target="_blank" rel="noopener noreferrer" class="footer__link-item">GTM Suite Webinars<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Cien.ai</div><ul class="footer__items clean-list"><li class="footer__item"><a href="http://cien.ai/contact" target="_blank" rel="noopener noreferrer" class="footer__link-item">Contact<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Cien, Inc. © 2026. All Rights Reserved.</div></div></div></footer></div>
 </body>
 </html>
